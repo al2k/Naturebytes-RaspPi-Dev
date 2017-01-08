@@ -10,7 +10,7 @@ import logging
 
 # Logging all of the camera's activity to the "naturebytes_camera_log" file. If you want to watch what your camera
 # is doing step by step you can open a Terminal window and type "cd /Naturebytes/Scripts" and then type
-# "tail -f naturebytes_camera_log" - leave this Terminal window open and you can view the logs live 
+# "tail -f naturebytes_camera_log" - leave this Terminal window open and you can view the logs live
 
 logging.basicConfig(format='%(asctime)s %(message)s',filename='naturebytes_camera_log',level=logging.DEBUG)
 logging.info('Naturebytes Wildlife Cam Kit started up successfully')
@@ -40,24 +40,24 @@ while True:
     time.sleep(0.1)
     prevState = currState
     # prevBattState = currBattState
-    
+
     # Map the state of the camera to our input pins (jumper cables connected to your PIR)
 
     currState = GPIO.input(sensorPin)
     # currBattState = GPIO.input(lowbattPin)
 
     # Checking that our state has changed
-   
+
     if currState != prevState:
     # About to check if our new state is HIGH or LOW
 
         newState = "HIGH" if currState else "LOW"
-        #  newBattState = "HIGH" if currBattState else "LOW"        
+        #  newBattState = "HIGH" if currBattState else "LOW"
         print "GPIO pin %s is %s" % (sensorPin, newState)
         # print "Battery level detected via pin %s is %s" % (lowbattPin, newBattState)
 
-        if currState:  # Our state has changed, so that must be a trigger from the PIR       
-     
+        if currState:  # Our state has changed, so that must be a trigger from the PIR
+
             i = datetime.now() # Get the time now
             get_date = i.strftime('%Y-%m-%d') # Get and format the date
             get_time = i.strftime('%H-%M-%S.%f') # Get and format the time
@@ -72,31 +72,31 @@ while True:
             photo = get_date + '_' +  get_time + '.jpg'
 
             # Using the raspistill library to take a photo. You can show that a photo has been taken in a small preview box on the desktop by changing --nopreview to --preview
-            cmd = 'raspistill -t 300 -w 1920 -h 1440 --nopreview -o /media/usb0/' + photo 
-	    print 'cmd ' +cmd
+            cmd = 'raspistill -t 300 -w 1920 -h 1440 --nopreview -o /media/usb0/' + photo
+        print 'cmd ' +cmd
 
             # If you find you have permission problems saving to other attached non-Naturebytes storage devices you can use this line to change the owner of the photo if required
             # perms = 'chown pi:pi /media/usb0/' + photo
-            # print 'perms ' +perms            
+            # print 'perms ' +perms
 
             # Log that we have just taking a photo"
             logging.info('About to take a photo and save to the USB drive')
             call ([cmd], shell=True)
             # call ([perms], shell=True)
-            
+
             # Log that a photo was taken successfully and state the file name so we know which one"
             logging.info('Photo taken successfully %(show_photo_name)s', { 'show_photo_name': photo })
             photo_location =  '/media/usb0/' + photo
 
             # Log that we are about to attempt to write the overlay text. This was removed in v1.07 to speed up the capture process."
-            logging.info('Skipping legacy overlay text')            
+            logging.info('Skipping legacy overlay text')
 
             # overlay = "/usr/bin/convert "+ photo_location + " "
 
             # Use ImageMagick to write text and meta data onto the photo.
             # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + '" '" + get_time '" -gravity southeast -annotate +6+6 'Camera 1 " "'" + photo_location
-            # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + " " + get_time + "' -gravity southeast -annotate +6+6 'Camera 1' " + photo_location   
-            
+            # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + " " + get_time + "' -gravity southeast -annotate +6+6 'Camera 1' " + photo_location
+
             # Log that we the text was added successfully"
             # logging.info('Added the overlay text successfully')
             # call ([overlay], shell=True)
@@ -107,7 +107,7 @@ while True:
             # call ([overlay], shell=True)
 
             # Log that the logo was added succesfully"
-            # logging.info('Logo added successfully')            
+            # logging.info('Logo added successfully')
 
         else:
 
