@@ -11,7 +11,7 @@ cam = picamera.PiCamera()
 
 # Show a live preview from the camera on the desktop and take a photo
 cam.start_preview()
-cam.capture("/home/pi/Desktop/Test_my_camera/naturebytes_"+ str(rand) + ".jpg")
+cam.capture("/home/pi/Desktop/Test_my_camera/naturebytes_" + str(rand) + ".jpg")
 
 # Wait 5 seconds and then stop the preview            
 time.sleep(5)  

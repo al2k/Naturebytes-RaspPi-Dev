@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+#
 # Naturebytes Wildlife Cam Kit | V1.07 (Pixel)
 # Based on the excellent official Raspberry Pi tutorials and a little extra from Naturebytes
 #
-# Useage: nbcamera.py -o <outputlocation>
+# Usage: nbcamera.py -o <outputlocation>
 # ======================================================================
 
 import RPi.GPIO as GPIO
@@ -17,20 +18,24 @@ import sys
 # is doing step by step you can open a Terminal window and type "cd /Naturebytes/Scripts" and then type
 # "tail -f naturebytes_camera_log" - leave this Terminal window open and you can view the logs live
 
-logging.basicConfig(format='%(asctime)s %(message)s',filename='naturebytes_camera_log',level=logging.DEBUG)
-logging.info('Naturebytes Wildlife Cam Kit started up successfully')
+logging.basicConfig(format="%(asctime)s %(message)s",filename="naturebytes_camera_log",level=logging.DEBUG)
+logging.info("Naturebytes Wildlife Cam Kit started up successfully")
 
 # Assigning a variable to the pins that we have connected the PIR to
-sensorPin = 13
+sensor_pin = 13
 
-# *** Legacy Kickstarter edition only *** You may want to detect the battery status (low or high) if using a Powerboost, so we code commented out a way of doing this to assist using pin 15
-# lowbattPin = 15
+# Command line defaults
+verbose = False
+
+# *** Legacy Kickstarter edition only *** 
+# You may want to detect the battery status (low or high) if using a Powerboost. Change  'BATT' to True if doing this
+BATT = False
+if(BATT): low_batt_pin = 15
 
 # Setting the GPIO (General Purpose Input Output) pins up so we can detect if they are HIGH or LOW (on or off)
-
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(sensorPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-# GPIO.setup(lowbattPin, GPIO.IN)
+GPIO.setup(sensor_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+if(BATT): GPIO.setup(lowbattPin, GPIO.IN)
 
 # Set default save location
 saveLocation = "/media/usb0/"
@@ -38,103 +43,97 @@ saveLocation = "/media/usb0/"
 def main(argv):
     # Set save location
     try:
-        opts, args = getopt.getopt(argv, "ho:")
+        opts, args = getopt.getopt(argv, "hov:")
         for opt, arg in opts:
             if opt == "-h":
-                print "nbcamera.py -o <outputlocation>"
-                sys.exit()
+				printHelp()
+				sys.exit()
             elif opt == "-o":
                 saveLocation = arg
+			elif opt == "-v"
+				verbose = True
     except getopt.GetoptError:
-        print "nbcamera.py -o <outputlocation>"
+        printHelp()
         sys.exit(2)
 
     # Defining our default states so we can detect a change
-
-    prevState = False
-    currState = False
-    # prevBattState = False
-    # currBattState = False
+    prev_state = False
+    curr_state = False
+	
+	if(BATT):
+		prev_batt_state = False
+		curr_batt_state = False
 
     # Starting a loop
-
     while True:
         time.sleep(0.1)
-        prevState = currState
-        # prevBattState = currBattState
+        prev_state = curr_state
+		if(BATT): prev_batt_state = curr_batt_state
 
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
+        curr_state = GPIO.input(sensor_pin)
+		if(BATT): curr_batt_state = GPIO.input(low_batt_pin)
 
-        currState = GPIO.input(sensorPin)
-        # currBattState = GPIO.input(lowbattPin)
+        # Checking whether the state has changed
+        if curr_state != prev_state:
+			# Check if our new state is HIGH or LOW
 
-        # Checking that our state has changed
+            new_state = "HIGH" if curr_state else "LOW"
+            new_batt_state = "HIGH" if curr_batt_state else "LOW"
+            print "GPIO pin %s is %s" % (sensor_pin, new_state)
+            print "GPIO pin %s is %s" % (low_batt_pin, new_batt_state)
 
-        if currState != prevState:
-        # About to check if our new state is HIGH or LOW
-
-            newState = "HIGH" if currState else "LOW"
-            #  newBattState = "HIGH" if currBattState else "LOW"
-            print "GPIO pin %s is %s" % (sensorPin, newState)
-            # print "Battery level detected via pin %s is %s" % (lowbattPin, newBattState)
-
-            if currState:  # Our state has changed, so that must be a trigger from the PIR
-
-                i = datetime.now() # Get the time now
-                get_date = i.strftime('%Y-%m-%d') # Get and format the date
-                get_time = i.strftime('%H-%M-%S.%f') # Get and format the time
-                # batt_state = newBattState
-                # Checking the current status of the battery
-
+            if curr_state: # State has changed to HIGH, so that must be a trigger from the PIR
+                i = datetime.now() # Get current time
+                get_date = i.strftime("%Y-%m-%d") # Get and format the date
+                get_time = i.strftime("%H-%M-%S.%f") # Get and format the time
+                
                 # Recording that a PIR trigger was detected and logging the battery level at this time
-                logging.info('PIR trigger detected')
-                # logging.info('Battery level is %(get_batt_level)s', { 'get_batt_level': batt_state })
-
+                logging.info("PIR trigger detected")
+				printVerbose("PIR trigger detected")
+				if(BATT):
+					logging.info("Battery level is %(get_batt_level)s", { "get_batt_level": batt_state })
+					printVerbose("Battery level is %(get_batt_level)s", { "get_batt_level": batt_state })
+                
                 # Assigning a variable so we can create a photo JPG file that contains the date and time as its name
-                photo = get_date + '_' +  get_time + '.jpg'
+                photo_name = get_date + "_" +  get_time + ".jpg"
 
-                # Using the raspistill library to take a photo. You can show that a photo has been taken in a small preview box on the desktop by changing --nopreview to --preview
-                cmd = 'raspistill -t 300 -w 1920 -h 1440 --nopreview -o ' + photo
-                print 'cmd ' +cmd
+                # Using the raspistill library to take a photo. 
+				# Show the photo that has been taken in a small preview box on the desktop by changing --nopreview to --preview
+                cmd = "raspistill -t 300 -w 1920 -h 1440 --nopreview -o " + photo_name
+                print "cmd " + cmd
 
-                # If you find you have permission problems saving to other attached non-Naturebytes storage devices you can use this line to change the owner of the photo if required
-                # perms = 'chown pi:pi /media/usb0/' + photo
-                # print 'perms ' +perms
-
-                # Log that we have just taking a photo"
-                logging.info('About to take a photo and save to the USB drive')
+                # Log that we have just taking a photo
+                logging.info("About to take a photo and save to the USB drive")
+				printVerbose("About to take a photo and save to the USB drive")
                 call ([cmd], shell=True)
-                # call ([perms], shell=True)
-
+				
+				# If you have permission problems saving to other attached non-Naturebytes storage devices,
+				# uncomments the following three lines to change the owner of the photo
+                # perms = 'chown pi:pi /media/usb0/' + photo
+                # print 'perms ' + perms
+				# call ([perms], shell=True)
+				
                 # Log that a photo was taken successfully and state the file name so we know which one"
-                logging.info('Photo taken successfully %(show_photo_name)s', { 'show_photo_name': photo })
-                photo_location =  '/media/usb0/' + photo
-
-                # Log that we are about to attempt to write the overlay text. This was removed in v1.07 to speed up the capture process."
-                logging.info('Skipping legacy overlay text')
-
-                # overlay = "/usr/bin/convert "+ photo_location + " "
-
-                # Use ImageMagick to write text and meta data onto the photo.
-                # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + '" '" + get_time '" -gravity southeast -annotate +6+6 'Camera 1 " "'" + photo_location
-                # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + " " + get_time + "' -gravity southeast -annotate +6+6 'Camera 1' " + photo_location
-
-                # Log that we the text was added successfully"
-                # logging.info('Added the overlay text successfully')
-                # call ([overlay], shell=True)
-
-                # Add a small Naturebytes logo to the top left of the photo. Note - you could change this to your own logo if you wanted.
-                # logging.info('Adding the Naturebytes logo')
-                # overlay = '/usr/bin/convert '+ photo_location + ' /home/pi/Naturebytes/Scripts/naturebytes_logo_80.png -geometry +1+1 -composite ' + photo_location
-                # call ([overlay], shell=True)
-
-                # Log that the logo was added succesfully"
-                # logging.info('Logo added successfully')
+                logging.info("Photo taken successfully %(show_photo_name)s", { "show_photo_name": photo_name })
+				printVerbose("Photo taken successfully %(show_photo_name)s", { "show_photo_name": photo_name })
+                photo_location = "/media/usb0/" + photo_name
 
             else:
+               logging.info("Waiting for a new PIR trigger to continue")
+			   printVerbose("Waiting for a new PIR trigger to continue")
 
-               # print "Waiting for a new PIR trigger to continue"
-               logging.info('Waiting for a new PIR trigger to continue')
-
+def printHelp():
+	options = """ 
+			  usage: nbcamera.py [<options>] [--]
+			  Options:
+			  \t -o <outputlocation> \t specify output file location
+			  \t -v                  \t be verbose
+			  """
+	print options
+	
+def printVerbose(str):
+	if(verbose): print str
+                			   		   
 if __name__ == "main":
     main(sys.argv[1:])
