@@ -8,27 +8,28 @@ import time
 import datetime as dt
 
 # Set the resolution of the video you intend to capture.
-camera = picamera.PiCamera(resolution=(800, 600))
+# camera = picamera.PiCamera(resolution=(800, 600))
 
 destination = '/media/usb0'
 
-print "Starting up!"
-time.sleep(5)
-print "Waiting 60 seconds"
+print( "Starting up!")
+sleep_time = 60
+time.sleep(sleep_time)
+print("Waiting %d seconds" % (sleep_time))
 # Change the time.sleep value to delay the startup. The variable is in seconds, so it waits 60 seconds bef$
 
 x = 1
-y = 1
 while True:
      filename = os.path.join(destination, dt.datetime.now().strftime('%Y-%m-%d_%H.%M.%S.h264'))
-     print "Taking a video. This is video %d " % (x)
+     print("Taking a video. This is video %d " % (x))
      camera.start_recording(filename) 
      camera.wait_recording(5)
-         # Record for 5 seconds
+     # Record for 5 seconds
      camera.stop_recording()
-     print "Sleeping for 5 seconds before recording again"
-     time.sleep(5)
-         # Waiting for 1 mins before continuing
-     y += 1
-     print "Done. Preparing to record next video."
+     print("Video %d completed" % (x))
+     
+     wait_time = 5
+     print("Sleeping for %d seconds before recording again" % (wait_time))
+     time.sleep(wait_time)
+     print("Done. Preparing to record next video.")
      x += 1

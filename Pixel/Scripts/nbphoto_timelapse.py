@@ -1,4 +1,9 @@
 #!/usr/bin/python
+#
+# Naturebytes Wildlife Cam Kit | V1.07 (Pixel)
+# Based on the excellent official Raspberry Pi tutorials and a little extra from Naturebytes
+#
+# ======================================================================
 
 from time import sleep
 from picamera import PiCamera
