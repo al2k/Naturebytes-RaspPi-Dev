@@ -3,7 +3,7 @@
 # Naturebytes Wildlife Cam Kit | V1.07 (Pixel)
 # Based on the excellent official Raspberry Pi tutorials and a little extra from Naturebytes
 #
-# Usage: sudo python nbcamera.py [<options>] [--]
+# Usage: sudo python nbcamera_batt.py [<options>] [--]
 # ======================================================================
 
 import RPi.GPIO as GPIO
@@ -27,11 +27,13 @@ sensor_pin = 13
 
 # *** Legacy Kickstarter edition only *** 
 # You may want to detect the battery status (low or high) if using a Powerboost. 
-# Ues script nbcamera_batt.py if so
+# Use this script if so, else use nbcamera.py
+low_batt_pin = 15
 
 # Setting the GPIO (General Purpose Input Output) pins up so we can detect if they are HIGH or LOW (on or off)
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(sensor_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(low_batt_pin, GPIO.IN)
 
 def main(argv):
     # Set default save location
@@ -58,36 +60,49 @@ def main(argv):
     except getopt.GetoptError:
         printHelp()
         sys.exit(2)
-
+    
     # Take images when PIR trigger HIGH
     try:
         # Defining our default states so we can detect a change
         prev_state = False
         curr_state = False
-    
+        
+        # Define default battery states
+        prev_batt_state = False
+        curr_batt_state = False
+        
         # Starting a loop
         while True:
             time.sleep(0.1)
             prev_state = curr_state
-
+            prev_batt_state = curr_batt_state
+            
             # Map the state of the camera to our input pins (jumper cables connected to your PIR)
             curr_state = GPIO.input(sensor_pin)
-
+            curr_batt_state = GPIO.input(low_batt_pin)
+            
             # Checking whether the state has changed
             if curr_state != prev_state:
                 # Check if our new state is HIGH or LOW
                 new_state = "HIGH" if curr_state else "LOW"
                 print("GPIO pin %s is %s" % (sensor_pin, new_state))
-            
+                
+                new_batt_state = "HIGH" if curr_batt_state else "LOW"
+                print("GPIO pin %s is %s" % (low_batt_pin, new_batt_state))
+                
                 if curr_state: # State has changed to HIGH, so that must be a trigger from the PIR
                     i = datetime.now() # Get current time
                     get_date = i.strftime("%Y-%m-%d") # Get and format the date
                     get_time = i.strftime("%H-%M-%S.%f") # Get and format the time
-                
-                    # Recording that a PIR trigger was detected
+                    batt_state = new_batt_state # Checking the current status of the battery
+                    
+                    # Recording that a PIR trigger was detected and logging the battery level at this time
                     logging.info("PIR trigger detected")
                     printVerbose(verbose, "PIR trigger detected")
-                
+                    
+                    logging.info("Battery level is %(get_batt_level)s", { "get_batt_level": batt_state })
+                    printVerbose(verbose, msg=("Battery level is %s" % (batt_state)))
+                        
                     # Assigning a variable so we can create a photo JPG file that contains the date and time as its name
                     photo_name = get_date + "_" +  get_time + ".jpg"
 
@@ -97,7 +112,7 @@ def main(argv):
                     print("cmd: " + cmd)
 				
                     # If you have permission problems saving to other attached non-Naturebytes storage devices,
-                    # uncomments the following lines to change the owner of the photo
+                    # uncomments the following three lines to change the owner of the photo
                     # perms = "chown pi:pi /media/usb0/" + photo_name
                     # print("perms: " + perms)
                     
@@ -123,11 +138,11 @@ def main(argv):
                         printVerbose(verbose, "Adding the Naturebytes logo")
                         overlay = "/usr/bin/convert " + photo_location + " /home/pi/Naturebytes/Scripts/naturebytes_logo_80.png -geometry +1+1 -composite " + photo_location
                         call ([overlay], shell=True)
-				
+    
                     # Log that a photo was taken successfully and state the file name so we know which one"
                     logging.info("Photo taken successfully %(show_photo_name)s", { "show_photo_name": photo_name })
                     printVerbose(verbose, msg=("Photo taken successfully %s" % (photo_name)))
-                else:
+            	else:
                     logging.info("Waiting for a new PIR trigger to continue")
                     printVerbose(verbose, "Waiting for a new PIR trigger to continue")
     except KeyboardInterrupt:
@@ -141,9 +156,9 @@ def main(argv):
 
 def printHelp():
     options = """ 
-            usage: sudo python nbcamera.py [<options>] [--]
+            usage: sudo python nbcamera_batt.py [<options>] [--]
             Options:
-            \t -l                  \t Overlay Naturebytes logo onto captured image    
+            \t -l                  \t Overlay Naturebytes logo onto captured image  
             \t -o <outputlocation> \t specify output file location
             \t -v                  \t be verbose - print log in terminal
             """
