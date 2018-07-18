@@ -4,7 +4,8 @@ import time
 
 print ('Wave your hand in front of the camera / sensor to trigger your PIR')
 
-# Check that your PIR "OUT" PIN is connected to the correct PIN on the Raspberry Pi. You can confirm this in the official Naturebytes Wildlife Cam Kit instructions
+# Check that your PIR "OUT" PIN is connected to the correct PIN on the Raspberry Pi. 
+# You can confirm this in the official Naturebytes Wildlife Cam Kit instructions
 sensorPin = 11
 
 # Set the GPIO (General Purpose Input Outout) PINs up and define that we want to read "sensorPin" that we assigned above

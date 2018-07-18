@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#
 # Naturebytes Wildlife Cam Kit | V1.01
 # Based on the excellent official Raspberry Pi tutorials and a little extra from Naturebytes
 
