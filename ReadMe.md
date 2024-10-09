@@ -5,5 +5,7 @@ The Naturebytes Wildlife Cam Kit is a motion-sensitive, wildlife camera that any
 Our Wildlife Cam Cases come as part of the Kit or can be bought separately. The cases are specifically designed to be weatherproof and can protect your tech from exposure to the elements.
 
 Build it, set it up outdoors and share your wildlife images online with the Naturebytes community.
+Please visit https://naturebytes.org/ for more information
+
 
 This is the repository for the python code running on the Raspberry Pi.
