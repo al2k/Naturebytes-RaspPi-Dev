@@ -27,7 +27,7 @@ BATTERY_PIN = 15
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
+GPIO.setup(BATTERY_PIN, GPIO.IN)
 
 def what_os():
     path = pathlib.Path("/etc/os-release")

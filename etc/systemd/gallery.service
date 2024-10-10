@@ -1,0 +1,12 @@
+[Unit]
+Description=Start the photo gallery service
+
+[Service]
+WorkingDirectory=/home/pi/
+ExecStart=/home/pi/nature_bytes/bin/python3 /home/pi/nature_bytes/nature_nature_byts/app.py
+SyslogIdentifier=SRV_GALLERY
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
