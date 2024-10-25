@@ -60,7 +60,6 @@ def take_photo(command, save_to, use_overlay):
     logging.info(f'About to take a photo {photo}')
     call([cmd], shell=True)
 
-
     # Log that a photo was taken successfully and state the file name so we know which one"
     logging.info('Photo taken successfully %(show_photo_name)s', {'show_photo_name': photo})
     photo_location =  save_to + photo
@@ -87,7 +86,7 @@ def take_photo(command, save_to, use_overlay):
         # Log that the logo was added successfully"
         logging.info('Logo added successfully')
 
-def main(use_overlay=False, save_to='./'):
+def main(save_to='./', use_overlay=False):
     prev_state = curr_state = 0
 
     # Starting with Bookworm the cammand name changed
