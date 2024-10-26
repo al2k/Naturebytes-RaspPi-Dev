@@ -2,8 +2,8 @@
 Description=Start the camera service
 
 [Service]
-WorkingDirectory=/home/pi/
-ExecStart=/home/pi/nature_bytes/bin/python3 /home/pi/nature_bytes/nature_nature_bytes/main.py
+WorkingDirectory=/usr/local/src
+ExecStart=/usr/local/bin/python3 /usr/local/src/main.py photos
 SyslogIdentifier=SRV_CAMERA
 Restart=always
 RestartSec=30

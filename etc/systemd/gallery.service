@@ -2,8 +2,8 @@
 Description=Start the photo gallery service
 
 [Service]
-WorkingDirectory=/home/pi/
-ExecStart=/home/pi/nature_bytes/bin/python3 /home/pi/nature_bytes/nature_nature_byts/app.py
+WorkingDirectory=/usr/local/src
+ExecStart=/usr/local/bin/python3 /usr/local/src/app.py
 SyslogIdentifier=SRV_GALLERY
 Restart=always
 RestartSec=30
