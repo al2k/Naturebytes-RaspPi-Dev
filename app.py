@@ -1,11 +1,14 @@
+import io
 import os
 import time
 import binascii
 import argparse
 
-from picamera2 import Picamera2
-from flask import Flask, Response, request, render_template, send_from_directory
-
+from picamera2          import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs  import FileOutput
+from flask              import Flask, Response, request, render_template, send_from_directory
+from threading          import Condition
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
@@ -17,6 +20,15 @@ def encode(x):
 def decode(x):
     return binascii.unhexlify(x.encode('utf-8')).decode()
 
+class StreamingOutput(io.BufferedIOBase):
+    def __init__(self):
+        self.frame = None
+        self.condition = Condition()
+
+    def write(self, buf):
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
 
 @app.route('/')
 def home():
@@ -38,14 +50,17 @@ def download_file(filepath):
 def gen():
     """Video streaming generator function."""
     with Picamera2() as picam2:
-        picam2.resolution=(800, 600)
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        output = StreamingOutput()
+        picam2.start_recording(JpegEncoder(), FileOutput(output))
         while True:
-            frame = picam2.capture_array()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n'
-                   b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                   b'\r\n' + frame + b'\r\n')
-            time.sleep(1)
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n'
+                       b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                       b'\r\n' + frame + b'\r\n')
 
 @app.route('/video_feed')
 def video_feed():
