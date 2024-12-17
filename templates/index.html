@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css"
     />
-    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="static/style.css" />
   </head>
   <body>
     <div class="main-wrapper">
@@ -21,7 +21,7 @@
         <div class="livestream">
           <div class="title">Your Camera Livestream</div>
           <div class="main-box">
-            <img src="static/assets/main.png" alt="" />
+            <img src="{{ url_for('video_feed') }}" alt="" />
             <div class="timer">
               <svg
                 width="31"
@@ -295,6 +295,7 @@
           <div class="title">Your Gallery</div>
           <div class="desc">View & download images. Click to view more</div>
           <div class="img-gallery">
+            {% for image in images %}
             <div class="item">
               <div class="head">
                 <img src="static/assets/img-1.png" alt="" />
@@ -328,172 +329,9 @@
                 </div>
               </div>
             </div>
-            <div class="item">
-              <div class="head">
-                <img src="static/assets/img-2.png" alt="" />
-                <div class="zoom-in">
-                  <svg
-                    width="38"
-                    height="38"
-                    viewBox="0 0 38 38"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M28.5489 26.3103L35.3303 33.0902L33.0899 35.3306L26.3101 28.5492C23.7874 30.5714 20.6497 31.6713 17.4165 31.6667C9.5505 31.6667 3.1665 25.2827 3.1665 17.4167C3.1665 9.55075 9.5505 3.16675 17.4165 3.16675C25.2825 3.16675 31.6665 9.55075 31.6665 17.4167C31.6711 20.6499 30.5712 23.7877 28.5489 26.3103ZM25.3728 25.1355C27.3818 23.0688 28.5039 20.299 28.4998 17.4167C28.4998 11.294 23.5393 6.33341 17.4165 6.33341C11.2938 6.33341 6.33317 11.294 6.33317 17.4167C6.33317 23.5395 11.2938 28.5001 17.4165 28.5001C20.2988 28.5041 23.0685 27.382 25.1353 25.373L25.3728 25.1355ZM15.8332 15.8334V11.0834H18.9998V15.8334H23.7498V19.0001H18.9998V23.7501H15.8332V19.0001H11.0832V15.8334H15.8332Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div class="img-details">
-                <div class="img-title">looking at 7sissters</div>
-                <div class="icon">
-                  <div class="icon-item download">
-                    <i class="ri-download-2-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-share-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-delete-bin-6-line"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="item">
-              <div class="head">
-                <img src="static/assets/img-3.png" alt="" />
-                <div class="zoom-in">
-                  <svg
-                    width="38"
-                    height="38"
-                    viewBox="0 0 38 38"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M28.5489 26.3103L35.3303 33.0902L33.0899 35.3306L26.3101 28.5492C23.7874 30.5714 20.6497 31.6713 17.4165 31.6667C9.5505 31.6667 3.1665 25.2827 3.1665 17.4167C3.1665 9.55075 9.5505 3.16675 17.4165 3.16675C25.2825 3.16675 31.6665 9.55075 31.6665 17.4167C31.6711 20.6499 30.5712 23.7877 28.5489 26.3103ZM25.3728 25.1355C27.3818 23.0688 28.5039 20.299 28.4998 17.4167C28.4998 11.294 23.5393 6.33341 17.4165 6.33341C11.2938 6.33341 6.33317 11.294 6.33317 17.4167C6.33317 23.5395 11.2938 28.5001 17.4165 28.5001C20.2988 28.5041 23.0685 27.382 25.1353 25.373L25.3728 25.1355ZM15.8332 15.8334V11.0834H18.9998V15.8334H23.7498V19.0001H18.9998V23.7501H15.8332V19.0001H11.0832V15.8334H15.8332Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div class="img-details">
-                <div class="img-title">environmental-nonprofit-35</div>
-                <div class="icon">
-                  <div class="icon-item download">
-                    <i class="ri-download-2-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-share-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-delete-bin-6-line"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="item">
-              <div class="head">
-                <img src="static/assets/img-4.png" alt="" />
-                <div class="zoom-in">
-                  <svg
-                    width="38"
-                    height="38"
-                    viewBox="0 0 38 38"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M28.5489 26.3103L35.3303 33.0902L33.0899 35.3306L26.3101 28.5492C23.7874 30.5714 20.6497 31.6713 17.4165 31.6667C9.5505 31.6667 3.1665 25.2827 3.1665 17.4167C3.1665 9.55075 9.5505 3.16675 17.4165 3.16675C25.2825 3.16675 31.6665 9.55075 31.6665 17.4167C31.6711 20.6499 30.5712 23.7877 28.5489 26.3103ZM25.3728 25.1355C27.3818 23.0688 28.5039 20.299 28.4998 17.4167C28.4998 11.294 23.5393 6.33341 17.4165 6.33341C11.2938 6.33341 6.33317 11.294 6.33317 17.4167C6.33317 23.5395 11.2938 28.5001 17.4165 28.5001C20.2988 28.5041 23.0685 27.382 25.1353 25.373L25.3728 25.1355ZM15.8332 15.8334V11.0834H18.9998V15.8334H23.7498V19.0001H18.9998V23.7501H15.8332V19.0001H11.0832V15.8334H15.8332Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div class="img-details">
-                <div class="img-title">looking at 7sissters</div>
-                <div class="icon">
-                  <div class="icon-item download">
-                    <i class="ri-download-2-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-share-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-delete-bin-6-line"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="item">
-              <div class="head">
-                <img src="static/assets/img-5.png" alt="" />
-                <div class="zoom-in">
-                  <svg
-                    width="38"
-                    height="38"
-                    viewBox="0 0 38 38"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M28.5489 26.3103L35.3303 33.0902L33.0899 35.3306L26.3101 28.5492C23.7874 30.5714 20.6497 31.6713 17.4165 31.6667C9.5505 31.6667 3.1665 25.2827 3.1665 17.4167C3.1665 9.55075 9.5505 3.16675 17.4165 3.16675C25.2825 3.16675 31.6665 9.55075 31.6665 17.4167C31.6711 20.6499 30.5712 23.7877 28.5489 26.3103ZM25.3728 25.1355C27.3818 23.0688 28.5039 20.299 28.4998 17.4167C28.4998 11.294 23.5393 6.33341 17.4165 6.33341C11.2938 6.33341 6.33317 11.294 6.33317 17.4167C6.33317 23.5395 11.2938 28.5001 17.4165 28.5001C20.2988 28.5041 23.0685 27.382 25.1353 25.373L25.3728 25.1355ZM15.8332 15.8334V11.0834H18.9998V15.8334H23.7498V19.0001H18.9998V23.7501H15.8332V19.0001H11.0832V15.8334H15.8332Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div class="img-details">
-                <div class="img-title">environmental-nonprofit-35</div>
-                <div class="icon">
-                  <div class="icon-item download">
-                    <i class="ri-download-2-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-share-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-delete-bin-6-line"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="item">
-              <div class="head">
-                <img src="static/assets/img-6.png" alt="" />
-                <div class="zoom-in">
-                  <svg
-                    width="38"
-                    height="38"
-                    viewBox="0 0 38 38"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M28.5489 26.3103L35.3303 33.0902L33.0899 35.3306L26.3101 28.5492C23.7874 30.5714 20.6497 31.6713 17.4165 31.6667C9.5505 31.6667 3.1665 25.2827 3.1665 17.4167C3.1665 9.55075 9.5505 3.16675 17.4165 3.16675C25.2825 3.16675 31.6665 9.55075 31.6665 17.4167C31.6711 20.6499 30.5712 23.7877 28.5489 26.3103ZM25.3728 25.1355C27.3818 23.0688 28.5039 20.299 28.4998 17.4167C28.4998 11.294 23.5393 6.33341 17.4165 6.33341C11.2938 6.33341 6.33317 11.294 6.33317 17.4167C6.33317 23.5395 11.2938 28.5001 17.4165 28.5001C20.2988 28.5041 23.0685 27.382 25.1353 25.373L25.3728 25.1355ZM15.8332 15.8334V11.0834H18.9998V15.8334H23.7498V19.0001H18.9998V23.7501H15.8332V19.0001H11.0832V15.8334H15.8332Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div class="img-details">
-                <div class="img-title">looking at 7sissters</div>
-                <div class="icon">
-                  <div class="icon-item download">
-                    <i class="ri-download-2-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-share-line"></i>
-                  </div>
-                  <div class="icon-item">
-                    <i class="ri-delete-bin-6-line"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            {% endfor %}
+
+
 
           <div class="pagination-sec">
             <div class="pagination">

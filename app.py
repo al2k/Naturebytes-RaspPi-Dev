@@ -1,17 +1,15 @@
 import os
+import cv2
 import binascii
 import argparse
 
-from flask import Flask
-from flask import request
-from flask import render_template
-from flask import send_from_directory
-
+from flask import Flask, Response, request, render_template, send_from_directory
 
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 
+vc = cv2.VideoCapture(0)
 
 def encode(x):
     return binascii.hexlify(x.encode('utf-8')).decode()
@@ -22,7 +20,7 @@ def decode(x):
 
 @app.route('/')
 def home():
-    root_dir = app.config['ROOT_DIR']
+    root_dir = "/home/pi/photos/ "#app.config['ROOT_DIR']
     image_paths = []
     for root,dirs,files in os.walk(root_dir):
         for file in files:
@@ -36,6 +34,19 @@ def download_file(filepath):
     dir,filename = os.path.split(decode(filepath))
     return send_from_directory(dir, filename, as_attachment=False)
 
+
+def gen():
+    """Video streaming generator function."""
+    while True:
+        rval, frame = vc.read()
+        cv2.imwrite('pic.jpg', frame)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + open('pic.jpg', 'rb').read() + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__=="__main__":
     '''
