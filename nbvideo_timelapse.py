@@ -10,6 +10,7 @@ import sys
 import getopt
 
 from picamera2 import Picamera2
+from picamera2.encoders import H264Encoder, Quality
 
 # Logging all of the camera's activity to the "naturebytes_camera_log" file. If you want to watch what your 
 # camera is doing step by step you can open a Terminal window and type "cd /Naturebytes/Scripts" and then type 
@@ -64,7 +65,9 @@ def main(argv):
             logging.info("Taking a video. This is video %d " % (x))
             printVerbose(verbose, msg=("Taking a video. This is video %d" % (x)))
 
-            camera.start_recording(filename)
+
+            encoder = H264Encoder()
+            camera.start_recording(encoder, 'test.h264', quality=Quality.LOW)
             camera.wait_recording(record_time)  # Record for 5 (record_time) seconds
             camera.stop_recording()
             logging.info("Video %(video_num)d completed", {"video_num": x})
