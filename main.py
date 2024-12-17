@@ -53,7 +53,7 @@ def take_photo(command, save_to, use_overlay):
     photo = now +'.jpg'
 
     # Using the raspistill library to take a photo and show that a photo has been taken in a small preview box on the desktop
-    cmd = f'{command} --output ./{photo}'
+    cmd = f'{command} --output {save_to}/{photo}'
     logging.info(f"cmd:{cmd}")
 
     # Log that we have just taking a photo"
@@ -85,6 +85,8 @@ def take_photo(command, save_to, use_overlay):
 
         # Log that the logo was added successfully"
         logging.info('Logo added successfully')
+    else:
+        call(["mv",f"{photo}",f"{save_to}"])
 
 def main(save_to='./', use_overlay=False):
     prev_state = curr_state = 0
