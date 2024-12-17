@@ -20,7 +20,7 @@ logging.basicConfig(format="%(asctime)s %(message)s", filename="naturebytes_came
 logging.info("Naturebytes Wildlife Cam Kit started up successfully")
 
 # Set the resolution of the video you intend to capture.
-#camera = Picamera2(resolution=(800, 600))
+camera = Picamera2(resolution=(800, 600))
 
 print("Starting up!")
 sleep_time = 60
@@ -81,8 +81,8 @@ def main(argv):
     except KeyboardInterrupt:
         print("KeyboardInterrupt detected. Exiting program")
         sys.exit()
-    except:
-        print("Error detected. Exiting program")
+    except Exception as e:
+        print(f"Error:{e} detected. Exiting program")
         sys.exit(2)
 
 
