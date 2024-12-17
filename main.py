@@ -89,6 +89,7 @@ def take_photo(command, save_to, use_overlay):
 def main(save_to='./', use_overlay=False):
     prev_state = curr_state = 0
 
+    print(f"Saving photos to {save_to}")
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
@@ -119,7 +120,7 @@ def main(save_to='./', use_overlay=False):
 
 
 if __name__ == "__main__":
-    save_to = './'
+    save_to = '/home/pi/photos'
     use_overlay = True
     if len(sys.argv)>1:
         save_to = sys.argv[1]
