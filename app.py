@@ -1,4 +1,5 @@
 import os
+import time
 import binascii
 import argparse
 
@@ -8,9 +9,6 @@ from flask import Flask, Response, request, render_template, send_from_directory
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
-
-picam2 = Picamera2(resolution=(800, 600))
-picam2.start()
 
 
 def encode(x):
@@ -39,12 +37,15 @@ def download_file(filepath):
 
 def gen():
     """Video streaming generator function."""
-    while True:
-        frame = picam2.capture_array()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n'
-               b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-               b'\r\n' + frame + b'\r\n')
+    with Picamera2() as picam2:
+        picam2.resolution=(800, 600)
+        while True:
+            frame = picam2.capture_array()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n'
+                   b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                   b'\r\n' + frame + b'\r\n')
+            time.sleep(1)
 
 @app.route('/video_feed')
 def video_feed():
