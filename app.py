@@ -9,8 +9,7 @@ from flask import Flask, Response, request, render_template, send_from_directory
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 
-picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
+picam2 = Picamera2(resolution=(800, 600))
 picam2.start()
 
 
