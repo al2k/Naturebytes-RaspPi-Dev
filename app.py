@@ -1,15 +1,18 @@
 import os
-import cv2
 import binascii
 import argparse
 
+from picamera2 import Picamera2
 from flask import Flask, Response, request, render_template, send_from_directory
 
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 
-vc = cv2.VideoCapture(0)
+picam2 = Picamera2()
+picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
+picam2.start()
+
 
 def encode(x):
     return binascii.hexlify(x.encode('utf-8')).decode()
@@ -38,10 +41,11 @@ def download_file(filepath):
 def gen():
     """Video streaming generator function."""
     while True:
-        rval, frame = vc.read()
-        cv2.imwrite('pic.jpg', frame)
+        frame = picam2.capture_array()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + open('pic.jpg', 'rb').read() + b'\r\n')
+               b'Content-Type: image/jpeg\r\n'
+               b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+               b'\r\n' + frame + b'\r\n')
 
 @app.route('/video_feed')
 def video_feed():
