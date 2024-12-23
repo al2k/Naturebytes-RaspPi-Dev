@@ -7,7 +7,6 @@ import csv
 import time
 import arrow
 import logging
-import argparse
 
 import RPi.GPIO as GPIO
 
@@ -37,11 +36,12 @@ def what_os():
     return os_release
 
 
-def take_photo(command, save_to, use_overlay):
+def take_photo(command, save_to, use_overlay, video):
     """
     Take a photo and if necessary add overlay
     :param command: str: command string to send
     :param use_overlay: bool: use an overlay or not
+    :param video: bool: this is video if True else still
     :return: None
     """
     # Recording that a PIR trigger was detected and logging the battery level at this time
@@ -50,84 +50,67 @@ def take_photo(command, save_to, use_overlay):
 
     # Assigning a variable so we can create a photo JPG file that contains the date and time as its name
     now = arrow.now().format('YYYY-MM-DD_HH:mm:ss')
-    photo = now +'.jpg'
+
+    if video:
+        photo = now + '.h264'
+    else:
+        photo = now +'.jpg'
 
     # Using the raspistill library to take a photo and show that a photo has been taken in a small preview box on the desktop
     cmd = f'{command} -o {photo}'
     logging.info(f"cmd:{cmd}")
 
     # Log that we have just taking a photo"
-    cmd = cmd.split()
-    run(cmd, shell=True)
+    run(cmd.split())
 
     # Log that a photo was taken successfully and state the file name so we know which one"
-    logging.info('Photo taken successfully %(show_photo_name)s', {'show_photo_name': photo})
-    photo_location =  os.path.join(save_to,photo)
+    logging.info(f'Photo {photo} taken successfully')
+
     if os.path.exists(photo):
-        print(os.path.abspath(photo))
+        if use_overlay:
+            # Log that we are about to attempt to write the overlay text"
+            logging.info('About to write the overlay text')
+            overlay = "/usr/bin/convert " + photo + " "
 
-    if use_overlay:
-        # Log that we are about to attempt to write the overlay text"
-        logging.info('About to write the overlay text')
+            # Use ImageMagick to write text and meta data onto the photo.
+            # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + '" '" + get_time '" -gravity southeast -annotate +6+6 'Camera 1 " "'" + photo_location
+            overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " \
+                       + now + "' -gravity southeast -annotate +6+6 'Camera 1' " + photo
 
-        overlay = "/usr/bin/convert " + photo_location + " "
+            # Log that we the text was added successfully"
+            logging.info('Added the overlay text successfully')
+            run(overlay.split())
+            logging.info('Logo added successfully')
 
-        # Use ImageMagick to write text and meta data onto the photo.
-        # overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + get_date + '" '" + get_time '" -gravity southeast -annotate +6+6 'Camera 1 " "'" + photo_location
-        overlay += " -gravity north -background black -extent +0+40 +repage -box black -fill white -pointsize 24 -gravity southwest -annotate +6+6 'Naturebytes Wildlife Cam Kit | Date & Time: " + now + "' -gravity southeast -annotate +6+6 'Camera 1' " + photo_location
-
-        # Log that we the text was added successfully"
-        logging.info('Added the overlay text successfully')
-        run(overlay.split, shell=True, check=True)
-
-        # Add a small Naturebytes logo to the top left of the photo. Note - you could change this to your own logo if you wanted.
-        logging.info('Adding the Naturebytes logo')
-        overlay = '/usr/bin/convert ' + photo_location + ' ./naturebytes_logo_80.png -geometry +1+1 -composite ' + photo_location
-        run(overlay.split(), shell=True)
-
-        # Log that the logo was added successfully"
-        logging.info('Logo added successfully')
-    else:
-        run(["mv",f"{photo}",f"{save_to}"])
+        run(["mv",f"./{photo}",f"{save_to}"])
 
 
 def main(save_to='./', use_overlay=False, video=False):
-    prev_state = curr_state = 0
 
-    print(f"Saving photos to {save_to}")
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
     if '12' in version:
-        cam_command = 'rpicam-still'
+        cam_command = 'rpicam-still' if not video else 'rpicam-vid -t 10s'
     else:
-        cam_command = 'libcamera-still'
+        cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
 
     while True:
-        time.sleep(0.1)
-        prev_state = curr_state
 
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
-        curr_state = GPIO.input(SENSOR_PIN)
-        if not curr_state == prev_state:
-            # About to check if our new state is HIGH or LOW
-
-            state = "HIGH" if curr_state else "LOW"
-            logging.info(f"GPIO {SENSOR_PIN} pin:{state}")
-            # print "Battery level detected via pin %s is %s" % (lowbattPin, newBattState)
-
-            if curr_state:  # Our state has changed, so that must be a trigger from the PIR
-                task = Thread(target=take_photo, args=[cam_command, save_to, use_overlay])
-                task.run()
-            else:
-                # print "Waiting for a new PIR trigger to continue"
-                logging.info('Waiting for a new PIR trigger to continue')
+        if GPIO.input(SENSOR_PIN):
+            task = Thread(target=take_photo, args=[cam_command, save_to, use_overlay, video])
+            task.run()
+            time.sleep(20)
+        else:
+            # print "Waiting for a new PIR trigger to continue"
+            logging.info('Waiting for a new PIR trigger to continue')
 
 
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = './'
+    save_to = '/Users/petedouma/Projects/naturebytes/Naturebytes-RaspPi-Dev/static/photos'
     overlay = True
     video = False
 

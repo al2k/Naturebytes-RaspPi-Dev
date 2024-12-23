@@ -32,13 +32,14 @@ class StreamingOutput(io.BufferedIOBase):
 
 @app.route('/')
 def home():
-    root_dir = "/home/pi/photos/ "#app.config['ROOT_DIR']
+    photo_dir = os.path.join(app.config.root_path, "static/photos/")
     image_paths = []
-    for root,dirs,files in os.walk(root_dir):
+    for root,dirs,files in os.walk(photo_dir):
         for file in files:
             if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
-                image_paths.append(encode(os.path.join(root,file)))
-    return render_template('index.html', paths=image_paths)
+                #image_paths.append(encode(os.path.join(root,file)))
+                image_paths.append(os.path.join('static/photos',file))
+    return render_template('index.html', images=image_paths)
 
 
 @app.route('/cdn/<path:filepath>')
@@ -67,6 +68,11 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
+@app.route('/stop_camera')
+def stop_camera():
+    pass
+
 if __name__=="__main__":
     '''
     parser = argparse.ArgumentParser('Usage: %prog [options]')
@@ -77,5 +83,5 @@ if __name__=="__main__":
                         default=5000, help='port to listen on [5000]')
     args = parser.parse_args()
     '''
-    app.config['ROOT_DIR'] = '/tmp/photos/'
+    #app.config[]
     app.run(host='0.0.0.0', debug=True)
