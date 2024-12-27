@@ -134,6 +134,7 @@
             </div>
             </a>
 
+            <a href="{{url_for('capture_image')}}">
             <div class="c-item">
               <svg
                 width="30"
@@ -162,7 +163,9 @@
 
               <span>Capture Image</span>
             </div>
-            <button onclick="{{url_for('stop_camera')}}">
+            </a>
+
+            <a href="{{url_for('stop_camera')}}">
             <div class="c-item">
               <svg
                 width="30"
@@ -187,7 +190,9 @@
 
               <span>Stop camera</span>
             </div>
-            </button>
+            </a>
+
+            <a href="{{url_for('watch_live')}}">
             <div class="c-item">
               <svg
                 width="35"
@@ -218,9 +223,10 @@
                   stroke-linejoin="round"
                 />
               </svg>
-
               <span>flip camera</span>
             </div>
+            </a>
+
             <div class="c-item watch-live">
               <svg
                 width="36"
@@ -239,6 +245,7 @@
             </div>
           </div>
         </div>
+
         <div class="aside">
           <div class="setting item">
             <div class="head-title">Testing & Settings</div>
