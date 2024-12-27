@@ -71,10 +71,16 @@ def video_feed():
 @app.route('/capture_video')
 def capture_video():
     print("Capture Video")
+    return 200
+
+@app.route('/capture_image')
+def capture_image():
+    return 200
 
 @app.route('/stop_camera')
 def stop_camera():
     print("Stop Camera")
+    return 200
 
 if __name__=="__main__":
     '''
