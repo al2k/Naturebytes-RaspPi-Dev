@@ -82,6 +82,11 @@ def stop_camera():
     print("Stop Camera")
     return 200
 
+@app.route('/watch_live')
+def watch_live():
+    print("Watch Live")
+    return 200
+
 if __name__=="__main__":
     '''
     parser = argparse.ArgumentParser('Usage: %prog [options]')
