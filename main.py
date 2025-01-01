@@ -2,22 +2,22 @@
 # Naturebytes Wildlife Cam Kit | V1.01
 # Based on the excellent official Raspberry Pi tutorials and a little extra from Naturebytes
 import os
-import sys
 import csv
 import time
 import arrow
 import logging
 
+
 import RPi.GPIO as GPIO
 
-from subprocess import run
-from threading import Thread
+from subprocess      import run
+from multiprocessing import shared_memory
 
 # Logging all of the camera's activity to the "naturebytes_camera_log" file. If you want to watch what your camera
 # is doing step by step you can open a Terminal window and type "cd /Naturebytes/Scripts" and then type
 # "tail -f naturebytes_camera_log" - leave this Terminal window open and you can view the logs live
 
-logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 logging.info('Naturebytes Wildlife Cam Kit started up successfully')
 
 # Assigning a variable to the pins that we have connected the PIR to
@@ -27,6 +27,10 @@ BATTERY_PIN = 15
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
+
+
+shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
+
 
 def what_os():
     path = "/etc/os-release"
@@ -99,18 +103,16 @@ def main(save_to='./', use_overlay=False, video=False):
 
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
-            task = Thread(target=take_photo, args=[cam_command, save_to, use_overlay, video])
-            task.run()
-            time.sleep(20)
-        else:
-            # print "Waiting for a new PIR trigger to continue"
-            logging.info('Waiting for a new PIR trigger to continue')
+            if shm.buf[0]:
+                video = False if shm.buf[0] == 1 else True
+                take_photo(cam_command, save_to, use_overlay, video)
+                time.sleep(10)
 
 
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = '/Users/petedouma/Projects/naturebytes/Naturebytes-RaspPi-Dev/static/photos'
+    save_to = '/usr/local/src/static/photos'
     overlay = True
     video = False
 

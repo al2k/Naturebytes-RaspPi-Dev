@@ -1,24 +1,41 @@
 import io
 import os
-import time
 import binascii
-import argparse
 
+from flask              import Flask, Response, request, render_template, send_from_directory
 from picamera2          import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs  import FileOutput
-from flask              import Flask, Response, request, render_template, send_from_directory
 from threading          import Condition
+from multiprocessing    import shared_memory
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
+
+"""
+User a shared memory byte to control how the camera app takes pictures:
+    0 - turn of pictures 
+    1 - still pictures
+    2 - video clips of 10 seconds
+"""
+create = True
+try:
+    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+except FileExistsError:
+    create = False
+    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+
+# Default to taking still pictures
+shm.buf[0]=1
 
 
 def encode(x):
     return binascii.hexlify(x.encode('utf-8')).decode()
 
+
 def decode(x):
     return binascii.unhexlify(x.encode('utf-8')).decode()
+
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -63,29 +80,40 @@ def gen():
                        b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
                        b'\r\n' + frame + b'\r\n')
 
+
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
 @app.route('/capture_video')
 def capture_video():
-    print("Capture Video")
-    return 200
+    """
+    Start to capture short video instead of still images
+    :return: Success
+    """
+    shm.buf[0] = 2
+    return "Success", 201
+
 
 @app.route('/capture_image')
 def capture_image():
-    return 200
+    shm.buf[0] = 1
+    return "Success", 201
+
 
 @app.route('/stop_camera')
 def stop_camera():
-    print("Stop Camera")
-    return 200
+    shm.buf[0] = 0
+    return "Success", 201
+
 
 @app.route('/watch_live')
 def watch_live():
     print("Watch Live")
-    return 200
+    return "Success", 201
+
 
 if __name__=="__main__":
     '''
