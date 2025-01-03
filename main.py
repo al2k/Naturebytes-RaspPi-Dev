@@ -28,9 +28,15 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
+create = True
+try:
+    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+except FileExistsError:
+    create = False
+    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
 
-shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
-
+# Default to taking still pictures
+shm.buf[0]=1
 
 def what_os():
     path = "/etc/os-release"
@@ -89,7 +95,7 @@ def take_photo(command, save_to, use_overlay, video):
         run(["mv",f"./{photo}",f"{save_to}"])
 
 
-def main(save_to='./', use_overlay=False, video=False):
+def camera(save_to='./', use_overlay=False, video=False):
 
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
@@ -121,4 +127,4 @@ if __name__ == "__main__":
     args.add_argument('-v', '--video',   action='store_true', default=False)
 
     values = args.parse_args()
-    main(values.save_to, values.overlay, values.video)
+    camera(values.save_to, values.overlay, values.video)
