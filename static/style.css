@@ -45,9 +45,13 @@ body {
 }
 
 .container .livestream .main-box img {
+  object-fit: cover;
+
+}
+
+#livestream {
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .container .livestream .main-box .timer {
@@ -61,6 +65,8 @@ body {
   border-radius: 30px;
   padding: 8px 12px;
   backdrop-filter: blur(2px);
+  
+  z-index: 1;
 }
 
 .container .livestream .main-box .timer span {
@@ -167,7 +173,6 @@ body {
 }
 
 /* ~~~~~~~~~~~~ ASIDE ~~~~~~~~~~~~ */
-
 .aside {
   margin-top: 50px;
 }
@@ -177,84 +182,67 @@ body {
   font-weight: 600;
 }
 
-.aside .all-setting-items {
-  margin-top: 20px;
-}
-
-.aside .item {
+.aside .help,
+.aside .testing {
   box-shadow: 0px 0px 14px #00000017;
   border-radius: 10px;
   padding: 25px 15px;
 }
-
-.aside .item.help {
+.aside .help {
   margin-top: 30px;
 }
 
-.aside .item .setting-item {
+.aside .toggle-group {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 12px 20px;
-  border-radius: 50px;
+  border-radius: 22px;
   border: 1px solid #d2d7ef;
   margin-top: 15px;
   user-select: none;
+}
+.aside .toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
   cursor: pointer;
 }
 
-.aside .item .setting-item .name {
+.toggle-content.show {
+  display: block;
+}
+
+.toggle-header.active .arrow {
+  transform: rotate(180deg);
+}
+
+.aside .toggle-header .name {
   font-size: 16px;
   font-weight: 600;
 }
 
-.aside .help .guides {
+.link {
+  color: #1e1e1e;
+}
+
+/* Rotate the arrow when toggled */
+.arrow.rotated {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.toggle-content {
   margin-top: 15px;
-  user-select: none;
-  cursor: pointer;
-  border: 1px solid #d2d7ef;
-  padding: 12px 20px;
-  border-radius: 25px;
+  text-align: left;
+  margin-left: 0;
+  max-width: fit-content;
+
+  display: none;
 }
 
-.aside .help .guides .up-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.guides .download-item {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.guides .up-item img {
-  transition: transform 0.3s ease;
-}
-
-.guides .up-item.active img {
-  transform: rotate(180deg);
-}
-
-.guides .up-item.active + .download-item {
-  max-height: 200px;
-}
-
-.up-item img {
-  transition: transform 0.3s ease;
-}
-.up-item img.rotated {
-  transform: rotate(180deg);
-}
-
-.aside .help .guides .up-item .name {
-  font-weight: 600;
-}
-
-.aside .help .guides .download-assembly,
-.aside .help .guides .link-assembly {
+.aside .download-assembly {
   background-color: #ffd143;
   color: #000000;
   padding: 12px 15px;
@@ -264,13 +252,10 @@ body {
   display: inline-block;
   gap: 10px;
   height: 50px;
-}
 
-.aside .help .guides .btn-d {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 100%;
+  justify-content: center;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -298,6 +283,8 @@ body {
   line-height: 1.2;
   font-weight: normal;
   transition: 0.3s ease;
+
+  margin-top: 5px;
 }
 
 .gallery .img-gallery {
@@ -321,6 +308,11 @@ body {
   overflow: hidden;
   border-radius: 15px;
   position: relative;
+}
+
+.gallery #zoom-icon {
+  width: auto;
+  height: auto;
 }
 
 .gallery .img-gallery .item .head:hover .zoom-in {
@@ -414,28 +406,6 @@ body {
   transition: 0.3s ease;
 }
 
-.gallery .view-more-btn {
-  width: 100%;
-  background-color: #ffd043;
-  text-align: center;
-  padding: 15px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 50px;
-  color: #000;
-  display: none;
-  cursor: pointer;
-  transition: 0.3s ease;
-  margin-top: 15px;
-}
-
-.gallery .view-more-btn:hover {
-  background-color: #f1b033;
-  transition: 0.3s ease;
-}
-
 .gallery .pagination-sec {
   display: flex;
   justify-content: flex-end;
@@ -477,6 +447,39 @@ body {
 
 .gallery .pagination .active-page {
   background-color: #f1b033;
+}
+
+/*  */
+.main-box .icon {
+  user-select: none;
+}
+.main-box .icon:hover {
+  cursor: pointer;
+  transform: scale(1.25);
+  filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.7));
+}
+
+#no-image-yet {
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+
+  margin: 20px 0;
+}
+
+#no-image-yet h4 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  color: #787878;
+}
+
+#no-image-yet p {
+  font-size: 19px;
+  font-weight: 400;
+  color: #787878;
 }
 
 /* ! ~~~~~~~~~~~~~~ RESPONSIVE HERE ~~~~~~~~~~~ */
@@ -612,10 +615,6 @@ body {
 
   .gallery .pagination-sec {
     display: none;
-  }
-
-  .gallery .view-more-btn {
-    display: block;
   }
 
   .gallery .desc {

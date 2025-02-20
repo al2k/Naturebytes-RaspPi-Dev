@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Wildlife Cam Kit - naturebytes</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css"
+    />
+    <link rel="stylesheet" href="static/style.css" />
+    <link rel="shortcut icon" href="/static/assets/favicon.webp" type="image/x-icon" />
+  </head>
+  <body>
+    <!-- There is an array images, we are using jinja -->
+    <!-- for loop to iterate through the images and display them -->
+    <div class="main-wrapper">
+      <div class="logo">
+        <a href="">
+          <img src="static/assets/logo.svg" alt="" />
+        </a>
+      </div>
+      <div class="container">
+        <div class="gallery">
+          <div class="title">Gallery</div>
+          <div class="gallery-box">
+            {% for image in images %}
+            <div class="gallery-item">
+              <img src="{{ image }}" alt="" />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        </div>
+      </div>
+
+  </body>
+</html>

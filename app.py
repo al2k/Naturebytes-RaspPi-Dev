@@ -2,12 +2,14 @@ import io
 import os
 import binascii
 
-from flask              import Flask, Response, request, render_template, send_from_directory
-from picamera2          import Picamera2
-from picamera2.encoders import JpegEncoder
-from picamera2.outputs  import FileOutput
+from flask              import Flask, Response, request, render_template, send_from_directory, url_for
 from threading          import Condition
 from multiprocessing    import shared_memory
+
+# Michal's imports
+import cv2
+import time
+
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
@@ -47,16 +49,39 @@ class StreamingOutput(io.BufferedIOBase):
             self.frame = buf
             self.condition.notify_all()
 
-@app.route('/')
-def home():
+
+def get_photo_paths(limit=6, page=0):
+    """
+        @limit - number of images per page
+        @page - current page number
+        :return a list of image paths in the photo directory.
+    """
+
     photo_dir = os.path.join(app.config.root_path, "static/photos/")
     image_paths = []
     for root,dirs,files in os.walk(photo_dir):
         for file in files:
             if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
-                #image_paths.append(encode(os.path.join(root,file)))
-                image_paths.append(os.path.join('static/photos',file))
-    return render_template('index.html', images=image_paths)
+                image_paths.append(url_for('static', filename=f'photos/{file}', _external=True))
+
+    start = page * limit
+    end = start + limit
+    
+    return image_paths[start:end]
+
+
+@app.route('/')
+def home():
+    image_paths = get_photo_paths(12, 0)
+    
+    return render_template('index.html', images=[])
+
+
+@app.route('/gallery/<int:page>')
+def gallery(page):
+    image_paths = get_photo_paths(12, page)
+    return render_template('gallery.html', images=image_paths)
+
 
 
 @app.route('/cdn/<path:filepath>')
@@ -65,20 +90,49 @@ def download_file(filepath):
     return send_from_directory(dir, filename, as_attachment=False)
 
 
+rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
 def gen():
     """Video streaming generator function."""
-    with Picamera2() as picam2:
-        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-        output = StreamingOutput()
-        picam2.start_recording(JpegEncoder(), FileOutput(output))
+
+    if rpi_cam_available:
+        with Picamera2() as picam2:
+            picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+            output = StreamingOutput()
+            picam2.start_recording(JpegEncoder(), FileOutput(output))
+            while True:
+                with output.condition:
+                    output.condition.wait()
+                    frame = output.frame
+                    yield (b'--frame\r\n'
+                        b'Content-Type: image/jpeg\r\n'
+                        b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                        b'\r\n' + frame + b'\r\n')
+    else:
+        """ Simulate the Pi Camera with a regular webcam """
+        video_path = os.path.join("static", "assets", "random_video.mp4")
+        cap = cv2.VideoCapture(video_path)  # Use a webcam or replace 0 with a video file path
+
+        if not cap.isOpened():
+            print("Error: Could not open video stream.")
+            return
+
         while True:
-            with output.condition:
-                output.condition.wait()
-                frame = output.frame
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n'
-                       b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                       b'\r\n' + frame + b'\r\n')
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            _, buffer = cv2.imencode('.jpg', frame)
+            frame_bytes = buffer.tobytes()
+
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n'
+                b'Content-Length: ' + str(len(frame_bytes)).encode() + b'\r\n'
+                b'\r\n' + frame_bytes + b'\r\n')
+            
+            # Simulating frame rate (30 FPS)
+            time.sleep(1/30)
+
+        cap.release()
 
 
 @app.route('/video_feed')
