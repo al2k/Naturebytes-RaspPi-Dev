@@ -72,9 +72,9 @@ def get_photo_paths(limit=6, page=0):
 
 @app.route('/')
 def home():
-    image_paths = get_photo_paths(12, 0)
+    image_paths = get_photo_paths(6, 0)
     
-    return render_template('index.html', images=[])
+    return render_template('index.html', images=image_paths)
 
 
 @app.route('/gallery/<int:page>')

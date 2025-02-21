@@ -4,41 +4,86 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | Wildlife Cam Kit - naturebytes</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css"
-    />
+
+    <!-- remixicon.com -->
+
     <link rel="stylesheet" href="static/style.css" />
     <link rel="shortcut icon" href="/static/assets/favicon.webp" type="image/x-icon" />
   </head>
   <body>
-    <div class="main-wrapper">
+    <header>
       <div class="logo">
-        <a href="">
-          <img src="static/assets/logo.svg" alt="" />
+        <a href="/">
+          <img src="static/assets/logo.svg" alt="" id="large-logo" />
+          <img src="static/assets/favicon.webp" alt="" id="small-logo" />
         </a>
       </div>
+
+      <div class="links">
+        <a href="/" id="link-home" class="active-link">Camera</a>
+        <a href="/gallery/0">Gallery</a>
+        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
+      </div>
+    </header>
+    
+    <main class="main-wrapper">
       <div class="container">
         <div class="livestream">
-          <div class="title">Your Camera Livestream</div>
           <div class="main-box">
             <img src="{{ url_for('video_feed') }}" alt="" id="livestream" />
-            <div class="timer">
+            <!-- <div class="timer">
               <img src="/static/assets/record.svg" alt="" class="icon">
 
               <span>24:01:45</span>
-            </div>
+            </div> -->
             <div class="maximize-screen icon" onclick="toggleFullscreen()">
-              <img src="/static/assets/maximize.svg" alt="" width="30px">
+              <img src="/static/assets/maximize.svg" alt="" width="30px" class="live-icon">
             </div>
-            <div class="btn-sec">
+            <!-- <div class="btn-sec">
               <div class="play-btn icon">
-                <img src="/static/assets/play.svg" alt="">
+                <img src="/static/assets/play.svg" alt="" class="live-icon">
               </div>
+            </div> -->
+
+          </div>
+          <div id="camera-actions">
+            <div class="take-picture">
             </div>
           </div>
-          <div class="btn-all-item">
 
+          <div id="camera-controls">
+            <div id="camera-state">
+              <h3>Camera State</h3>
+              <div class="radio-wrapper">
+                <label for="live-streaming" class="radio-item">
+                  <img src="/static/assets/live.svg" alt="" width="36px">
+                  <span class="radio-name">Live Streaming</span>
+                  <input type="radio" id="live-streaming" name="camera-type" value="live-streaming" checked>
+                </label>
+                
+                <label for="contract" class="radio-item">
+                  <input type="radio" id="contract" name="camera-type" value="contract">
+                  <img src="/static/assets/movement.svg" alt="" width="36px">
+                  <span class="radio-name">Motion Capture</span>
+                </label>
+                
+                <label for="part-time" class="radio-item">
+                  <input type="radio" id="part-time" name="camera-type" value="part-time">
+                  <img src="/static/assets/turn-off.svg" alt="" width="36px">
+                  <span class="radio-name">Camera Off</span>
+                </label>
+            </div>
+          </div>
+
+          <!-- <div id="capturing-content">
+            <h3>Capture Content</h3>
+            <div id="button-wrapper">
+              <button>Take a Picture</button>
+              <button>Record Video</button>
+            </div>
+          </div> -->
+        </div>
+          <!-- <div class="btn-all-item">
             <a href="{{url_for('capture_video')}}">
             <div class="c-item">
               <img src="/static/assets/video.svg" alt="">
@@ -65,21 +110,21 @@
           <a href="{{url_for('watch_live')}}">
             <div class="c-item">
               <img src="/static/assets/flip.svg" alt="">
-              <!-- TODO: rotate and move to setting
-                Try 90 degrees 
-              -->
               <span>flip camera</span>
             </div>
           </a>
-
-            <div class="c-item watch-live">
-              <img src="/static/assets/live.svg" alt="">
-              
-              <span>Watch live</span>
-            </div>
+          
+          <div class="c-item watch-live">
+            <img src="/static/assets/live.svg" alt="" width="30px">
+            
+            <span>Watch live</span>
           </div>
+          </div> -->
         </div>
-
+      <!-- TODO: rotate and move to setting
+        Try 90 degrees 
+      -->
+      
         <div class="aside">
           <div class="testing">
             <div class="head-title">Testing & Settings</div>
@@ -154,16 +199,6 @@
                 <b>Is something broken? Here's how to fix it..</b>
               </div>
             </div>
-            <div class="toggle-group">
-              <div class="toggle-header">
-                  <div class="name">naturebytes online shop</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
-              </div>
-              
-              <div class="toggle-content">
-                <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" target="_blank" class="link">Link to our e-shop</a>
-              </div>
-            </div>
           </div>
         </div>
         
@@ -181,50 +216,45 @@
               {% for image in images %}
                 <div class="item">
                   <div class="head">
-                    <img src={{image}} alt="" />
+                    <img src={{image}} alt="" class="gallery-image" />
                     <div class="zoom-in">
                       <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
                     </div>
                   </div>
                   <div class="img-details">
-                    <div class="img-title">environmental-nonprofit-35</div>
                     <div class="icon">
-                      <div class="icon-item download">
-                        <i class="ri-download-2-line"></i>
+                      <div class="icon-item download" onclick="downloadImage('{{image}}')">
+                        <img src="/static/assets/download.svg" alt="">
                       </div>
-                      <div class="icon-item">
-                        <i class="ri-share-line"></i>
-                      </div>
-                      <div class="icon-item">
-                        <i class="ri-delete-bin-6-line"></i>
+                      <div class="icon-item" id="delete-icon">
+                        <img src="/static/assets/delete.svg" alt="">
                       </div>
                     </div>
                   </div>
                 </div>
               {% endfor %}
             </div>
-          {% endif %}
-
-          {% if images %}
-            <div class="pagination-sec">
-              <div class="pagination">
-                <div class="prev-page page">
-                  <img src="/static/assets/prev.svg" alt="">
-                </div>
-                <div class="page active-page">1</div>
-                <div class="page">2</div>
-                <div class="page">3</div>
-                <div class="next-page page">
-                  <img src="/static/assets/next.svg" alt="">
-                </div>
-              </div>
-            </div>
+            <a href="{{url_for('gallery', page=0)}}" id="view-gallery-wrapper">
+              <img src="/static/assets/image.svg" alt="" width="20px">
+              <p id="view-gallery">View your whole gallery</p>
+            </a>
           {% endif %}
         </div>
+      </div>
+    </main>
+
+    <!-- Modal for gallery image viewing -->
+    <div id="imageModal" class="modal">
+      <div id="modal-content-wrapper">
+          <span class="close">&times;</span>
+          <span class="nav-arrow left-arrow" onclick="navigate(-1)">&#10094;</span>
+          <span class="nav-arrow right-arrow" onclick="navigate(1)">&#10095;</span>
+          <img class="modal-content" id="modalImage">
       </div>
     </div>
 
     <script>
+      /* For the toggle groups. Testing & Settings and Help & Assembly guides on the right */
       document.addEventListener("DOMContentLoaded", function () {
         const toggleGroups = document.querySelectorAll(".toggle-group");
 
@@ -248,6 +278,7 @@
         });
       });
 
+      /* Video feed fullscreen toggle */
       let isFullScreen = false;
       function toggleFullscreen() {
         const elem = document.querySelector(".main-box");
@@ -273,6 +304,65 @@
           }
         }
         isFullScreen = !isFullScreen;
+      }
+    
+      /* Modal Gallery viewing and navigating */
+      let currentImageIndex = 0;
+      let images = [];
+
+      // Function to open the modal and display the clicked image
+      function openModal(index) {
+        currentImageIndex = index;
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        modal.style.display = "block";
+        modalImg.src = images[currentImageIndex];
+      }
+
+      // Function to close the modal
+      function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+      }
+
+      // Function to navigate between images
+      function navigate(direction) {
+        currentImageIndex += direction;
+        if (currentImageIndex >= images.length) {
+          currentImageIndex = 0;
+        } else if (currentImageIndex < 0) {
+          currentImageIndex = images.length - 1;
+        }
+        const modalImg = document.getElementById("modalImage");
+        modalImg.src = images[currentImageIndex];
+      }
+
+      // Event listeners for opening and closing the modal
+      document.addEventListener("DOMContentLoaded", function () {
+        const galleryImages = document.querySelectorAll(".gallery-image");
+        images = Array.from(galleryImages).map(img => img.src);
+
+        galleryImages.forEach((img, index) => {
+          img.addEventListener("click", () => openModal(index));
+        });
+
+        const modal = document.getElementById("imageModal");
+        const closeBtn = document.querySelector(".close");
+        closeBtn.addEventListener("click", closeModal);
+
+        // Close modal when clicking outside the image
+        window.addEventListener("click", function (event) {
+          if (event.target === modal) {
+            closeModal();
+          }
+        });
+      });
+    
+      function downloadImage(image) {
+        const a = document.createElement("a");
+        a.href = image;
+        a.download = "image.jpg";
+        a.click();
       }
     </script>
   </body>

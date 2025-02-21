@@ -8,31 +8,77 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.css"
     />
-    <link rel="stylesheet" href="static/style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <link rel="shortcut icon" href="/static/assets/favicon.webp" type="image/x-icon" />
   </head>
   <body>
-    <!-- There is an array images, we are using jinja -->
-    <!-- for loop to iterate through the images and display them -->
-    <div class="main-wrapper">
+    <header>
       <div class="logo">
-        <a href="">
-          <img src="static/assets/logo.svg" alt="" />
+        <a href="/">
+          <img src="{{ url_for('static', filename='/assets/logo.svg') }}" alt="" id="large-logo" />
+          <img src="{{ url_for('static', filename='/assets/favicon.webp') }}" alt="" id="small-logo" />
         </a>
       </div>
-      <div class="container">
-        <div class="gallery">
-          <div class="title">Gallery</div>
-          <div class="gallery-box">
+
+      <div class="links">
+        <a href="/" id="link-home">Camera</a>
+        <a href="/gallery/0" class="active-link">Gallery</a>
+        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
+      </div>
+    </header>
+
+    <div class="main-wrapper">
+      <div class="gallery">
+        <div class="title">Your Gallery</div>
+        <div class="desc">Your recently captured images will show up here!</div>
+        {% if not images %}
+          <div id="no-image-yet">
+            <img src="{{ url_for('static', filename='assets/no-image.png') }}" alt="" height="100px">
+            <h4>No image found</h4>
+            <p>Capture your first image using the button below the video feed!</p>
+          </div>
+        {% else %}
+          <div class="img-gallery">
             {% for image in images %}
-            <div class="gallery-item">
-              <img src="{{ image }}" alt="" />
-            </div>
+              <div class="item">
+                <div class="head">
+                  <img src={{image}} alt="" class="gallery-image" />
+                  <div class="zoom-in">
+                    <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
+                  </div>
+                </div>
+                <div class="img-details">
+                  <div class="icon">
+                    <div class="icon-item download" onclick="downloadImage('{{image}}')">
+                      <img src="/static/assets/download.svg" alt="">
+                    </div>
+                    <div class="icon-item" id="delete-icon">
+                      <img src="/static/assets/delete.svg" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
             {% endfor %}
           </div>
-        </div>
-        </div>
+        {% endif %}
       </div>
+    </div>
 
+      <!-- 
+      {% if images %}
+            <div class="pagination-sec">
+              <div class="pagination">
+                <div class="prev-page page">
+                  <img src="/static/assets/prev.svg" alt="">
+                </div>
+                <div class="page active-page">1</div>
+                <div class="page">2</div>
+                <div class="page">3</div>
+                <div class="next-page page">
+                  <img src="/static/assets/next.svg" alt="">
+                </div>
+              </div>
+            </div>
+          {% endif %} -->
   </body>
 </html>
