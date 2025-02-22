@@ -2,13 +2,15 @@ import io
 import os
 import binascii
 
-from flask              import Flask, Response, request, render_template, send_from_directory, url_for
+from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify
 from threading          import Condition
 from multiprocessing    import shared_memory
 
 # Michal's imports
 import cv2
 import time
+import math
+import random
 
 
 app = Flask("Image Gallery")
@@ -16,7 +18,7 @@ app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 
 """
 User a shared memory byte to control how the camera app takes pictures:
-    0 - turn of pictures 
+    0 - turn of pictures
     1 - still pictures
     2 - video clips of 10 seconds
 """
@@ -66,21 +68,32 @@ def get_photo_paths(limit=6, page=0):
 
     start = page * limit
     end = start + limit
+
+    # reverse
+    image_paths = image_paths[::-1]
     
-    return image_paths[start:end]
+    return image_paths[start:end], len(image_paths)
 
 
 @app.route('/')
 def home():
-    image_paths = get_photo_paths(6, 0)
+    image_paths, _ = get_photo_paths(6, 0)
     
     return render_template('index.html', images=image_paths)
 
 
 @app.route('/gallery/<int:page>')
 def gallery(page):
-    image_paths = get_photo_paths(12, page)
-    return render_template('gallery.html', images=image_paths)
+    per_page = 18
+    image_paths, len_image_paths = get_photo_paths(per_page, page)
+    return render_template(
+        'gallery.html',
+        images=image_paths,
+        page=page,
+        total_pages=math.ceil(len_image_paths / per_page),
+        per_page=per_page,
+        total_images=len_image_paths
+    )
 
 
 
@@ -89,6 +102,75 @@ def download_file(filepath):
     dir,filename = os.path.split(decode(filepath))
     return send_from_directory(dir, filename, as_attachment=False)
 
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    filename = "naturebytes-photo-" + time.strftime("%Y-%m-%dT%H-%M-%S") + ".png"
+    file_path = os.path.join(app.config.root_path, "static/photos", filename)
+    file.save(file_path)
+    
+    return jsonify({'message': 'File uploaded successfully'}), 201
+
+
+@app.route('/recent-photos')
+def recent_photos():
+    image_paths, _ = get_photo_paths(6, 0)
+    return jsonify(image_paths)
+
+
+@app.route('/delete-image', methods=['DELETE'])
+def delete_image():
+    data = request.get_json()
+    image_path = data.get('image').split("photos/")[1]
+    abs_path = os.path.join(app.config.root_path, os.path.join("static", "photos", image_path))
+    print(abs_path)
+    os.remove(abs_path)
+
+    return "Success", 204
+
+
+@app.route('/temp')
+def temp():
+    """
+        rename all files in /static/photos to follow format:
+        const todayDateTimeString = new Date().toISOString().replace(/:/g, '-').split('.')[0];
+        downloadImage(dataURL, `naturebytes-photo-${todayDateTimeString}.png`);
+    """
+    image_paths = []
+    photo_dir = os.path.join(app.config.root_path, "static/photos/")
+    for root,dirs,files in os.walk(photo_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                image_paths.append(url_for('static', filename=f'photos/{file}', _external=True))
+
+    print(image_paths)
+    for path in image_paths:
+        # generate random date
+        random_day = random.randint(1, 31)
+        random_day = f"{random_day:02d}"
+        random_month = random.randint(1, 12)
+        random_month = f"{random_month:02d}"
+        random_year = random.randint(2021, 2024)
+        random_hour = random.randint(0, 23)
+        random_hour = f"{random_hour:02d}"
+        random_minute = random.randint(0, 59)
+        random_minute = f"{random_minute:02d}"
+        random_second = random.randint(0, 59)
+        random_second = f"{random_second:02d}"
+        strftime_format = f"{random_year}-{random_month}-{random_day}T{random_hour}-{random_minute}-{random_second}"
+        new_name = f"naturebytes-photo-{strftime_format}.png"
+        print(new_name)
+        # rename
+        os.rename(os.path.join(photo_dir, os.path.basename(path)), os.path.join(photo_dir, new_name))
+
+    return "Success", 200
 
 rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
 def gen():

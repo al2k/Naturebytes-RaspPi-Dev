@@ -51,6 +51,3 @@ Temporary Items
 
 # pycache
 __pycache__
-
-# user photos
-/static/photos/

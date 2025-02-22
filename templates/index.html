@@ -47,7 +47,17 @@
 
           </div>
           <div id="camera-actions">
-            <div class="take-picture">
+            {% if not images %}
+              <div id="tooltip">
+                <span>Try taking your first photo!</span>
+              </div>
+            {% endif %}
+            <div id="camera-type">
+              <div id="swipe-container"></div>
+              <span id="photo" class="mode active" onclick="setActive(0);">Photo</span>
+              <span id="video" class="mode" onclick="setActive(1);">Video</span>
+            </div>
+            <div class="take-picture" onclick="takePhoto()">
             </div>
           </div>
 
@@ -203,13 +213,13 @@
         </div>
         
         <div class="gallery">
-          <div class="title">Your Gallery</div>
+          <div class="title">Recent Pictures</div>
           <div class="desc">Your recently captured images will show up here!</div>
           {% if not images %}
             <div id="no-image-yet">
               <img src="{{ url_for('static', filename='assets/no-image.png') }}" alt="" height="100px">
               <h4>No image found</h4>
-              <p>Capture your first image using the button below the video feed!</p>
+              <p>Capture your first image using the shutter button!</p>
             </div>
           {% else %}
             <div class="img-gallery">
@@ -226,7 +236,7 @@
                       <div class="icon-item download" onclick="downloadImage('{{image}}')">
                         <img src="/static/assets/download.svg" alt="">
                       </div>
-                      <div class="icon-item" id="delete-icon">
+                      <div class="icon-item" id="delete-icon" onclick="deleteImage('{{image}}')">
                         <img src="/static/assets/delete.svg" alt="">
                       </div>
                     </div>
@@ -253,117 +263,8 @@
       </div>
     </div>
 
-    <script>
-      /* For the toggle groups. Testing & Settings and Help & Assembly guides on the right */
-      document.addEventListener("DOMContentLoaded", function () {
-        const toggleGroups = document.querySelectorAll(".toggle-group");
-
-        toggleGroups.forEach(group => {
-          const header = group.querySelector(".toggle-header");
-          const content = group.querySelector(".toggle-content");
-          const arrow = group.querySelector(".arrow");
-
-          group.addEventListener("click", function (e) {
-            if (event.target !== header) {
-              content.classList.add("show");
-              header.classList.add("active");
-            }
-          });
-          header.addEventListener("click", function (e) {
-            e.stopPropagation();
-
-            content.classList.toggle("show");
-            header.classList.toggle("active");
-          });
-        });
-      });
-
-      /* Video feed fullscreen toggle */
-      let isFullScreen = false;
-      function toggleFullscreen() {
-        const elem = document.querySelector(".main-box");
-        if (!isFullScreen) {
-          if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-          } else if (elem.mozRequestFullScreen) {
-            elem.mozRequestFullScreen();
-          } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-          } else if (elem.msRequestFullscreen) {
-            elem.msRequestFullscreen();
-          }
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-        }
-        isFullScreen = !isFullScreen;
-      }
-    
-      /* Modal Gallery viewing and navigating */
-      let currentImageIndex = 0;
-      let images = [];
-
-      // Function to open the modal and display the clicked image
-      function openModal(index) {
-        currentImageIndex = index;
-        const modal = document.getElementById("imageModal");
-        const modalImg = document.getElementById("modalImage");
-        modal.style.display = "block";
-        modalImg.src = images[currentImageIndex];
-      }
-
-      // Function to close the modal
-      function closeModal() {
-        const modal = document.getElementById("imageModal");
-        modal.style.display = "none";
-      }
-
-      // Function to navigate between images
-      function navigate(direction) {
-        currentImageIndex += direction;
-        if (currentImageIndex >= images.length) {
-          currentImageIndex = 0;
-        } else if (currentImageIndex < 0) {
-          currentImageIndex = images.length - 1;
-        }
-        const modalImg = document.getElementById("modalImage");
-        modalImg.src = images[currentImageIndex];
-      }
-
-      // Event listeners for opening and closing the modal
-      document.addEventListener("DOMContentLoaded", function () {
-        const galleryImages = document.querySelectorAll(".gallery-image");
-        images = Array.from(galleryImages).map(img => img.src);
-
-        galleryImages.forEach((img, index) => {
-          img.addEventListener("click", () => openModal(index));
-        });
-
-        const modal = document.getElementById("imageModal");
-        const closeBtn = document.querySelector(".close");
-        closeBtn.addEventListener("click", closeModal);
-
-        // Close modal when clicking outside the image
-        window.addEventListener("click", function (event) {
-          if (event.target === modal) {
-            closeModal();
-          }
-        });
-      });
-    
-      function downloadImage(image) {
-        const a = document.createElement("a");
-        a.href = image;
-        a.download = "image.jpg";
-        a.click();
-      }
-    </script>
+    <script src="/static/scripts/gallery.js"></script>
+    <script src="/static/scripts/camera.js"></script>
+    <script src="/static/scripts/toggles.js"></script>
   </body>
 </html>
