@@ -105,11 +105,11 @@
   font-size: 20px;
 }
 
-.take-picture {
+#shutter {
   width: 50px;
   height: 50px;
 
-  background-color: white;
+  background-color: transparent;
 
   position: absolute;
   bottom: 30px;
@@ -120,16 +120,43 @@
 
   outline: 7px solid #fff;
   outline-offset: 2px;
+}
+#shutter::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background-color: #fff;
+  border-radius: 50%;
 
   transition: all 0.15s;
 }
-.take-picture:hover {
+#shutter.video-taking::before {
+  background-color: red;
+}
+#shutter.video-taking:hover::before {
+  background-color: #ff0000aa;
+}
+
+#shutter:hover::before {
   cursor: pointer;
 
   background-color: var(--primary);
 }
-.take-picture:active {
+#shutter.video-taking:active::before {
+  width: 25px;
+  height: 25px;
+
+  border-radius: 4px;
+}
+#shutter:active::before {
   background-color: #f1b033aa;
+
+  width: 42px;
+  height: 42px;
 }
 #camera-state {
   display: flex;
@@ -278,7 +305,7 @@ header .links a:hover {
 
 header .shop-button {
   padding: 8px 20px;
-  border-radius: 30px;
+  border-radius: 15px;
   background-color: var(--primary);
   font-weight: 600;
   cursor: pointer;
@@ -343,7 +370,7 @@ header .shop-button:hover {
   align-items: center;
   gap: 10px;
   background-color: #7c6d6d33;
-  border-radius: 30px;
+  border-radius: 15px;
   padding: 8px 12px;
   backdrop-filter: blur(2px);
   
@@ -411,7 +438,7 @@ header .shop-button:hover {
 .aside .help,
 .aside .testing {
   box-shadow: 0px 0px 14px #00000017;
-  border-radius: 10px;
+  border-radius: 15px;
   padding: 25px 15px;
 }
 .aside .help {
@@ -423,7 +450,7 @@ header .shop-button:hover {
   justify-content: space-between;
   flex-direction: column;
   padding: 12px 20px;
-  border-radius: 22px;
+  border-radius: 15px;
   border: 1px solid var(--border-color);
   margin-top: 15px;
   user-select: none;
@@ -434,6 +461,13 @@ header .shop-button:hover {
   align-items: center;
   width: 100%;
   cursor: pointer;
+}
+.aside #pir-sensor-toggle .name {
+  transition: 0.15s ease;
+  text-decoration: underline;
+}
+.aside #pir-sensor-toggle:hover .name {
+  color: var(--primary);
 }
 
 .toggle-content.show {
@@ -473,7 +507,7 @@ header .shop-button:hover {
   color: var(--text-color);
   padding: 12px 15px;
   margin-top: 10px;
-  border-radius: 50px;
+  border-radius: 15px;
   font-weight: 600;
   display: inline-block;
   gap: 10px;
@@ -482,6 +516,47 @@ header .shop-button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Camera settings */
+
+.toggle-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#camera-rotation {
+  display: flex;
+  gap: 18px;
+  cursor: pointer;
+}
+#camera-rotation img {
+  transition: 0.4s;
+
+  transform: rotate(0deg);
+}
+#camera-rotation img:first-of-type:hover {
+  transform: rotate(-90deg);
+}
+#camera-rotation img:nth-of-type(2):hover {
+  transform: rotate(-180deg);
+}
+#camera-rotation img:last-of-type:hover {
+  transform: rotate(90deg);
+}
+
+#restart-camera button {
+  background-color: var(--primary);
+  padding: 8px 20px;
+  border-radius: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+#restart-camera button:hover {
+  background-color: #f1b03388;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -633,8 +708,6 @@ header .shop-button:hover {
 #view-gallery {
   width: fit-content;
 
-  border-radius: 4px;
-  
   font-size: 18px;
   font-weight: 600;
 }
@@ -779,6 +852,68 @@ header .shop-button:hover {
 .right-arrow {
   right: 20px; /* Position inside the image */
 }
+
+/* PIR Modal */
+.pir-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+
+  z-index: 100000;
+}
+.pir-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pir-modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
+  font-size: 18px;
+}
+#pir-motion-displayer {
+  width: 120px;
+  height: 15px;
+  margin: 0 auto;
+
+  border-radius: 15px;
+
+  background-color: red;
+
+  transition: 0.1s ease;
+}
+.active-pir #pir-motion-displayer {
+  background-color: green;
+}
+#pir-motion-waiting {
+  display: block;
+}
+#pir-motion-active {
+  display: none;
+}
+.active-pir #pir-motion-waiting {
+  display: none;
+}
+.active-pir #pir-motion-active {
+  display: block;
+}
+
+
 /* ! ~~~~~~~~~~~~~~ RESPONSIVE HERE ~~~~~~~~~~~ */
 
 @media (max-width: 1440px) {
@@ -909,7 +1044,7 @@ header .shop-button:hover {
   #camera-actions #camera-type span {
     font-size: 18px;
   }
-  #camera-actions .take-picture {
+  #camera-actions #shutter {
     width: 40px;
     height: 40px;
     outline: 5px solid #fff;

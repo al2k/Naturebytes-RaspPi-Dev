@@ -78,6 +78,8 @@ container.addEventListener('mouseup', (e) => {
     setActive(Math.max(0, currentIndex - 1)); // Swipe right → Previous item
   }
 });
+
+var shutterState = 0; // 0 for photo, 1 for video
 // Sets the active shutter mode (Photo or Camera)
 function setActive(index) {
   const modes = document.querySelectorAll('.mode');
@@ -88,9 +90,25 @@ function setActive(index) {
   
   const offset = (-index - 75) * index; 
   container.style.transform = `translateX(${offset}px)`;
+
+  let shutter = document.getElementById('shutter');
+  if (index == 0) {
+    shutter.classList.add("photo-taking");
+    shutter.classList.remove("video-taking");
+    shutterState = 0;
+  } else if (index == 1) {
+    shutter.classList.add("video-taking");
+    shutter.classList.remove("photo-taking");
+    shutterState = 1;
+  }
 }
 // Take the photo by clicking the shutter
 function takePhoto() {
+  if (shutterState == 1) { // Video mode
+    alert("Video mode is not supported yet. Switch back to photo mode to take photos.");
+    return;
+  }
+
   let tooltip = document.getElementById('tooltip');
   if (tooltip) {
     tooltip.style.display = 'none';

@@ -57,7 +57,7 @@
               <span id="photo" class="mode active" onclick="setActive(0);">Photo</span>
               <span id="video" class="mode" onclick="setActive(1);">Video</span>
             </div>
-            <div class="take-picture" onclick="takePhoto()">
+            <div id="shutter" class="photo-taking" onclick="takePhoto()">
             </div>
           </div>
 
@@ -148,12 +148,8 @@
               </div>
             </div>
             <div class="toggle-group">
-              <div class="toggle-header">
+              <div class="toggle-header" id="pir-sensor-toggle">
                   <div class="name">Test PIR Sensor</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
-              </div>
-              
-              <div class="toggle-content">
               </div>
             </div>
             <div class="toggle-group">
@@ -163,16 +159,17 @@
               </div>
               
               <div class="toggle-content">
-              </div>
-            </div>
-            <div class="toggle-group">
-              <div class="toggle-header">
-                <!-- Move it somewhere else -->
-                  <div class="name">Restart Camera</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
-              </div>
-              
-              <div class="toggle-content">
+                <h3>Rotate camera</h3>
+                <div id="camera-rotation">
+                  <img src="/static/assets/left90.png" alt="" width="34px">
+                  <img src="/static/assets/left180.png" alt="" width="34px">
+                  <img src="/static/assets/right90.png" alt="" width="34px">
+                </div>
+
+                <h3>Restart Camera</h3>
+                <div id="restart-camera">
+                  <button>Restart</button>
+                </div>
               </div>
             </div>
           </div>
@@ -263,8 +260,45 @@
       </div>
     </div>
 
+    <!-- Modal for PIR testing -->
+    <div class="pir-modal" id="pir-modal">
+      <div class="pir-modal-content">
+          <span class="close" id="close-pir-modal">&times;</span>
+          <h3>PIR Sensor Test</h3>
+          <p id="pir-motion-waiting">Waiting for motion detection, pin input is LOW...</p>
+          <p id="pir-motion-active">Motion detected! Pin output is HIGH.</p>
+
+          <div id="pir-motion-displayer">
+          </div>
+      </div>
+    </div>
+
     <script src="/static/scripts/gallery.js"></script>
     <script src="/static/scripts/camera.js"></script>
     <script src="/static/scripts/toggles.js"></script>
+
+    <script>
+      const pirModal = document.getElementById("pir-modal");
+      const openPIRModal = document.getElementById("pir-sensor-toggle");
+      const closePIRModal = document.getElementById("close-pir-modal");
+
+      openPIRModal.addEventListener("click", () => {
+          pirModal.style.display = "flex";
+      });
+
+      closePIRModal.addEventListener("click", () => {
+          pirModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (e) => {
+          if (e.target === pirModal) {
+              pirModal.style.display = "none";
+          }
+      });
+
+      setInterval(() => {
+        pirModal.classList.toggle("active-pir");
+      }, 2000);
+    </script>
   </body>
 </html>
