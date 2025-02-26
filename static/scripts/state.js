@@ -11,10 +11,10 @@ const MOTION_CAPTURE = 1;
 const CAMERA_OFF = 2;
 
 
-// 0 - Photo
-// 1 - Video
-const PHOTO = 0;
-const VIDEO = 1;
+// 1 - Photo
+// 2 - Video
+const PHOTO = 1;
+const VIDEO = 2;
 
 var motionCaptureState = PHOTO;
 
@@ -64,9 +64,17 @@ function updateCameraState(state, initial=false) {
             cameraActions.style.display = "none";
             motionCaptureState.style.display = "block";
 
+            if (initial && !document.getElementById("motion-capture-label").checkVisibility()) {
+                console.log("Setting motion state to: " + motionState);
+                if (motionState == 1) {
+                    document.getElementById("photo-motion").checked = true;
+                } else if (motionState == 2) {
+                    document.getElementById("video-motion").checked = true;
+                }
+            }
+
             if (initial) break;
             
-            console.log("Motion State: " + motionState);
             let route = routeCaptureImage;
             if (motionState == 2) {
                 route = routeCaptureVideo;

@@ -106,7 +106,6 @@ def camera(save_to='./', use_overlay=False, video=False):
         cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
 
     while True:
-
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
             if shm.buf[0]:

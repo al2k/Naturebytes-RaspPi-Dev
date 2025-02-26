@@ -32,9 +32,11 @@
           <div class="main-box">
             <div id="motion-capture-placeholder">
               <img src="/static/assets/motion_detection.png" alt="" width="300px">
-              <p id="motion-capture-prepared-text">Camera is prepared to capture on motion detection!</p>
+              <p id="motion-capture-prepared-text">Camera is prepared to capture once it detects motion!</p>
               <p class="motion-capture-smaller-text">
-                Captured photos will appear in your gallery.
+                Captured content will appear in your gallery.
+                <br />
+                You can change the motion capture settings below.
                 <br />
                 To see the live feed, change camera mode below.
               </p>
@@ -103,7 +105,7 @@
                         {% if motion_state == 1 %} checked {% endif %}
                       >
                       <span class="radio-motion-capture"></span>
-                      <p>Photo</p>
+                      <p>Stills</p>
                     </label>
                     
                     <label for="motion-video" class="label-motion-capture">
@@ -119,6 +121,18 @@
                       <p>Video</p>
                     </label>
                   </div>
+                </label>
+
+                <label for="photo-motion" class="radio-item mobile-motion-capture" id="photo-motion-label">
+                  <img src="/static/assets/movement.svg" alt="" width="36px">
+                  <span class="radio-name">Motion Photo Capture</span>
+                  <input type="radio" class="camera-state-radio" id="photo-motion" name="camera-type" value="photo-motion" onclick="updateMotionState(PHOTO)">
+                </label>
+
+                <label for="video-motion" class="radio-item mobile-motion-capture" id="video-motion-label">
+                  <img src="/static/assets/video-motion.svg" alt="" width="36px">
+                  <span class="radio-name">Motion Video Capture</span>
+                  <input type="radio" class="camera-state-radio" id="video-motion" name="camera-type" value="video-motion" onclick="updateMotionState(VIDEO)">
                 </label>
                 
                 <label for="part-time" class="radio-item">

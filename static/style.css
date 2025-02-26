@@ -452,6 +452,9 @@ header .shop-button:hover {
   margin-top: 10px;
   text-align: center;
 }
+.mobile-motion-capture {
+  display: none;
+}
 
 #motion-capture-placeholder img {
   outline: 8px solid var(--text-color);
@@ -1025,6 +1028,17 @@ header .shop-button:hover {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
   }
+
+  #motion-capture-placeholder img {
+    width: 200px;
+    height: 200px;
+  }
+  #motion-capture-prepared-text {
+    font-size: 22px;
+  }
+  .motion-capture-smaller-text {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 1200px) {
@@ -1074,6 +1088,20 @@ header .shop-button:hover {
   .radio-wrapper .radio-item .radio-name {
     font-size: 18px;
   }
+
+  #motion-capture-placeholder img {
+    width: 100px;
+    height: 100px;
+    outline-offset: 10px;
+    outline: 5px solid var(--text-color);
+    margin-bottom: 30px;
+  }
+  #motion-capture-prepared-text {
+    font-size: 18px;
+  }
+  .motion-capture-smaller-text {
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1107,6 +1135,11 @@ header .shop-button:hover {
   }
   .radio-wrapper .radio-item img {
     width: 24px;
+  }
+  
+  #camera-off-placeholder img {
+    width: 100px;
+    height: 100px;
   }
 }
 
@@ -1161,6 +1194,13 @@ header .shop-button:hover {
   #camera-actions #shutter:active::before {
     width: 34px;
     height: 34px;
+  }
+  #motion-capture-label {
+    display: none;
+  }
+  .mobile-motion-capture {
+    border-radius: 0;
+    display: flex;
   }
 
   .gallery .img-gallery .item .head {
@@ -1263,6 +1303,25 @@ header .shop-button:hover {
   .radio-item:last-of-type {
     border-radius: 0 0 15px 15px;
   }
+
+  #motion-capture-placeholder img {
+    width: 50px;
+    height: 50px;
+    outline-offset: 7px;
+    outline: 3px solid var(--text-color);
+    margin-bottom: 30px;
+  }
+  #motion-capture-prepared-text {
+    font-size: 17px;
+    text-align: center;
+  }
+  .motion-capture-smaller-text {
+    font-size: 14px;
+  }
+  #camera-off-placeholder img {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 @media screen and (max-width: 375px) {
@@ -1285,5 +1344,16 @@ header .shop-button:hover {
 
   .gallery #no-image-yet p {
     font-size: 14px;
+  }
+
+  #motion-capture-placeholder img {
+    width: 50px;
+    height: 50px;
+  }
+  #motion-capture-prepared-text {
+    font-size: 14px;
+  }
+  .motion-capture-smaller-text {
+    font-size: 12px;
   }
 }
