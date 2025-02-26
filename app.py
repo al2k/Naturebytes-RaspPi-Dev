@@ -21,7 +21,12 @@ User a shared memory byte to control how the camera app takes pictures:
     0 - turn of pictures
     1 - still pictures
     2 - video clips of 10 seconds
+    3 - live stream
 """
+TURN_OFF_PICTURES = 0
+STILL_PICTURES = 1
+VIDEO_CLIPS = 2
+LIVE_STREAM = 3
 create = True
 try:
     shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
@@ -30,7 +35,7 @@ except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
 
 # Default to taking still pictures
-shm.buf[0]=1
+shm.buf[0]=STILL_PICTURES
 
 
 def encode(x):
@@ -69,6 +74,8 @@ def get_photo_paths(limit=6, page=0):
     start = page * limit
     end = start + limit
 
+    # sort
+    image_paths.sort()
     # reverse
     image_paths = image_paths[::-1]
     
@@ -78,8 +85,22 @@ def get_photo_paths(limit=6, page=0):
 @app.route('/')
 def home():
     image_paths, _ = get_photo_paths(6, 0)
+
+    camera_state = 0
+    if shm.buf[0] == TURN_OFF_PICTURES:
+        camera_state = 2
+    elif shm.buf[0] == STILL_PICTURES or shm.buf[0] == VIDEO_CLIPS:
+        camera_state = 1
+    else:
+        camera_state = 0
     
-    return render_template('index.html', images=image_paths)
+    motion_state = 1
+    if shm.buf[0] == STILL_PICTURES:
+        motion_state = 1
+    elif shm.buf[0] == VIDEO_CLIPS:
+        motion_state = 2
+
+    return render_template('index.html', images=image_paths, camera_state=camera_state, motion_state=motion_state)
 
 
 @app.route('/gallery/<int:page>')
@@ -94,7 +115,6 @@ def gallery(page):
         per_page=per_page,
         total_images=len_image_paths
     )
-
 
 
 @app.route('/cdn/<path:filepath>')
@@ -130,47 +150,9 @@ def delete_image():
     data = request.get_json()
     image_path = data.get('image').split("photos/")[1]
     abs_path = os.path.join(app.config.root_path, os.path.join("static", "photos", image_path))
-    print(abs_path)
     os.remove(abs_path)
 
     return "Success", 204
-
-
-@app.route('/temp')
-def temp():
-    """
-        rename all files in /static/photos to follow format:
-        const todayDateTimeString = new Date().toISOString().replace(/:/g, '-').split('.')[0];
-        downloadImage(dataURL, `naturebytes-photo-${todayDateTimeString}.png`);
-    """
-    image_paths = []
-    photo_dir = os.path.join(app.config.root_path, "static/photos/")
-    for root,dirs,files in os.walk(photo_dir):
-        for file in files:
-            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
-                image_paths.append(url_for('static', filename=f'photos/{file}', _external=True))
-
-    print(image_paths)
-    for path in image_paths:
-        # generate random date
-        random_day = random.randint(1, 31)
-        random_day = f"{random_day:02d}"
-        random_month = random.randint(1, 12)
-        random_month = f"{random_month:02d}"
-        random_year = random.randint(2021, 2024)
-        random_hour = random.randint(0, 23)
-        random_hour = f"{random_hour:02d}"
-        random_minute = random.randint(0, 59)
-        random_minute = f"{random_minute:02d}"
-        random_second = random.randint(0, 59)
-        random_second = f"{random_second:02d}"
-        strftime_format = f"{random_year}-{random_month}-{random_day}T{random_hour}-{random_minute}-{random_second}"
-        new_name = f"naturebytes-photo-{strftime_format}.png"
-        print(new_name)
-        # rename
-        os.rename(os.path.join(photo_dir, os.path.basename(path)), os.path.join(photo_dir, new_name))
-
-    return "Success", 200
 
 rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
 def gen():
@@ -229,26 +211,26 @@ def capture_video():
     Start to capture short video instead of still images
     :return: Success
     """
-    shm.buf[0] = 2
-    return "Success", 201
+    shm.buf[0] = VIDEO_CLIPS
+    return jsonify({'message': 'Video capture started'}), 201
 
 
 @app.route('/capture_image')
 def capture_image():
-    shm.buf[0] = 1
+    shm.buf[0] = STILL_PICTURES
     return "Success", 201
 
 
 @app.route('/stop_camera')
 def stop_camera():
-    shm.buf[0] = 0
+    shm.buf[0] = TURN_OFF_PICTURES
     return "Success", 201
 
 
 @app.route('/watch_live')
 def watch_live():
-    print("Watch Live")
-    return "Success", 201
+    shm.buf[0] = LIVE_STREAM
+    return jsonify({'message': 'Live stream started'}), 201
 
 
 if __name__=="__main__":

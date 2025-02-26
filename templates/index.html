@@ -7,8 +7,8 @@
 
     <!-- remixicon.com -->
 
-    <link rel="stylesheet" href="static/style.css" />
-    <link rel="shortcut icon" href="/static/assets/favicon.webp" type="image/x-icon" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/favicon.webp') }}" type="image/x-icon" />
   </head>
   <body>
     <header>
@@ -25,11 +25,27 @@
         <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
       </div>
     </header>
-    
+
     <main class="main-wrapper">
       <div class="container">
         <div class="livestream">
           <div class="main-box">
+            <div id="motion-capture-placeholder">
+              <img src="/static/assets/motion_detection.png" alt="" width="300px">
+              <p id="motion-capture-prepared-text">Camera is prepared to capture on motion detection!</p>
+              <p class="motion-capture-smaller-text">
+                Captured photos will appear in your gallery.
+                <br />
+                To see the live feed, change camera mode below.
+              </p>
+            </div>
+            <div id="camera-off-placeholder">
+              <img src="/static/assets/sleep.png" alt="" width="200px">
+              <p id="motion-capture-prepared-text">The Camera is currently off and saving power.</p>
+              <p class="motion-capture-smaller-text">
+                To see the live feed, change camera mode below.
+              </p>
+            </div>
             <img src="{{ url_for('video_feed') }}" alt="" id="livestream" />
             <!-- <div class="timer">
               <img src="/static/assets/record.svg" alt="" class="icon">
@@ -68,68 +84,52 @@
                 <label for="live-streaming" class="radio-item">
                   <img src="/static/assets/live.svg" alt="" width="36px">
                   <span class="radio-name">Live Streaming</span>
-                  <input type="radio" id="live-streaming" name="camera-type" value="live-streaming" checked>
+                  <input type="radio" class="camera-state-radio" id="live-streaming" name="camera-type" value="live-streaming" onclick="updateCameraState(LIVESTREAMING)" {% if camera_state == 0 %} checked {% endif %}>
                 </label>
                 
-                <label for="contract" class="radio-item">
-                  <input type="radio" id="contract" name="camera-type" value="contract">
+                <label for="motion-capture" class="radio-item" id="motion-capture-label">
                   <img src="/static/assets/movement.svg" alt="" width="36px">
                   <span class="radio-name">Motion Capture</span>
+                  <input type="radio" class="camera-state-radio" id="motion-capture" name="camera-type" value="motion-capture" onclick="updateCameraState(MOTION_CAPTURE)" {% if camera_state == 1 %} checked {% endif %}>                  
+
+                  <div id="motion-capture-state">
+                    <label for="motion-photo" class="label-motion-capture">
+                      <input
+                        type="radio"
+                        class="input-radio-motion-capture-state"
+                        name="motion-state"
+                        id="motion-photo"
+                        onclick="updateMotionState(1)"
+                        {% if motion_state == 1 %} checked {% endif %}
+                      >
+                      <span class="radio-motion-capture"></span>
+                      <p>Photo</p>
+                    </label>
+                    
+                    <label for="motion-video" class="label-motion-capture">
+                      <span class="radio-motion-capture"></span>
+                      <input
+                        type="radio"
+                        class="input-radio-motion-capture-state"
+                        name="motion-state"
+                        id="motion-video"
+                        onclick="updateMotionState(2)"
+                        {% if motion_state == 2 %} checked {% endif %}
+                      >
+                      <p>Video</p>
+                    </label>
+                  </div>
                 </label>
                 
                 <label for="part-time" class="radio-item">
-                  <input type="radio" id="part-time" name="camera-type" value="part-time">
                   <img src="/static/assets/turn-off.svg" alt="" width="36px">
                   <span class="radio-name">Camera Off</span>
+                  <input type="radio" class="camera-state-radio" id="part-time" name="camera-type" value="part-time" onclick="updateCameraState(CAMERA_OFF)" {% if camera_state == 2 %} checked {% endif %}>
                 </label>
             </div>
           </div>
-
-          <!-- <div id="capturing-content">
-            <h3>Capture Content</h3>
-            <div id="button-wrapper">
-              <button>Take a Picture</button>
-              <button>Record Video</button>
-            </div>
-          </div> -->
         </div>
-          <!-- <div class="btn-all-item">
-            <a href="{{url_for('capture_video')}}">
-            <div class="c-item">
-              <img src="/static/assets/video.svg" alt="">
-              <span>Capture video</span>
-            </div>
-            </a>
-
-            <a href="{{url_for('capture_image')}}">
-            <div class="c-item">
-              <img src="/static/assets/camera.svg" alt="">
-
-              <span>Capture Image</span>
-            </div>
-            </a>
-
-            <a href="{{url_for('stop_camera')}}">
-            <div class="c-item">
-              <img src="/static/assets/stop.svg" alt="">
-              
-              <span>Stop camera</span>
-            </div>
-          </a>
-          
-          <a href="{{url_for('watch_live')}}">
-            <div class="c-item">
-              <img src="/static/assets/flip.svg" alt="">
-              <span>flip camera</span>
-            </div>
-          </a>
-          
-          <div class="c-item watch-live">
-            <img src="/static/assets/live.svg" alt="" width="30px">
-            
-            <span>Watch live</span>
-          </div>
-          </div> -->
+        
         </div>
       <!-- TODO: rotate and move to setting
         Try 90 degrees 
@@ -273,9 +273,23 @@
       </div>
     </div>
 
+    <script>
+      /* variables for file upload */
+      var uploadRoute = "{{ url_for('upload_file') }}";
+      var recentPhotosRoute = "{{ url_for('recent_photos') }}";
+
+      /* variable for camera state */
+      var currentState = parseInt("{{ camera_state }}");
+      var motionState = parseInt("{{ motion_state }}");
+      var routeWatchLive = "{{ url_for('watch_live') }}";
+      var routeCaptureVideo = "{{ url_for('capture_video') }}";
+      var routeCaptureImage = "{{ url_for('capture_image') }}";
+      var routeStopCamera = "{{ url_for('stop_camera') }}";
+    </script>
     <script src="/static/scripts/gallery.js"></script>
     <script src="/static/scripts/camera.js"></script>
     <script src="/static/scripts/toggles.js"></script>
+    <script src="/static/scripts/state.js"></script>
 
     <script>
       const pirModal = document.getElementById("pir-modal");

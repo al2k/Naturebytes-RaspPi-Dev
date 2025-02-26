@@ -12,6 +12,8 @@
   border-radius: 0 0 15px 15px;
 
   position: relative;
+
+  display: none;
 }
 /* tooltip */
 #camera-actions #tooltip {
@@ -211,12 +213,11 @@ input[type="radio"] {
   display: none;
 }
 /* .radio-item */
-.radio-item:has(input[type="radio"]:checked) {
+.radio-item:has(.camera-state-radio:checked) {
   border-color: var(--primary);
   background-color: #f1b03344;
 }
-.radio-item:has(input[type="radio"]:checked) img {
-  /* filter: invert(27%) sepia(75%) saturate(6858%) hue-rotate(353deg) brightness(92%) contrast(130%); */
+.radio-item:has(.camera-state-radio:checked) img {
   filter: invert(79%) sepia(67%) saturate(861%) hue-rotate(331deg) brightness(97%) contrast(94%);
 }
 .radio-item:hover {
@@ -342,10 +343,10 @@ header .shop-button:hover {
 
 .container .livestream .main-box {
   width: 100%;
+  aspect-ratio: 16 / 9;
   overflow: hidden !important;
   border-radius: 15px;
   position: relative;
-  height: 700px;
 }
 
 .container .livestream .main-box img {
@@ -355,7 +356,6 @@ header .shop-button:hover {
 
 #livestream {
   width: 100%;
-  height: 100%;
 }
 
 .live-icon {
@@ -427,6 +427,110 @@ header .shop-button:hover {
   height: 100%;
   object-fit: cover;
 }
+
+#motion-capture-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--primary);
+
+  width: 100%;
+  height: 100%;
+}
+
+#motion-capture-prepared-text {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+.motion-capture-smaller-text {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-color);
+  margin-top: 10px;
+  text-align: center;
+}
+
+#motion-capture-placeholder img {
+  outline: 8px solid var(--text-color);
+  outline-offset: 20px;
+  border-radius: 7px;
+  margin-bottom: 50px;
+}
+
+#camera-off-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #f6685e;
+
+  width: 100%;
+  height: 100%;
+}
+#camera-off-placeholder img {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+#motion-capture-label {
+  position: relative;
+}
+
+#motion-capture-state {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: none;
+}
+#motion-capture-state label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+/* radio new checkmark */
+.radio-motion-capture {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid #00000088;
+  cursor: pointer;
+  transition: 0.1s ;
+}
+.radio-motion-capture::before {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+.label-motion-capture:hover .radio-motion-capture {
+  border-color: var(--primary);
+  border-width: 2px;
+}
+.label-motion-capture:has(.input-radio-motion-capture-state:checked) .radio-motion-capture::before {
+  display: block;
+}
+.label-motion-capture:has(.input-radio-motion-capture-state:checked) .radio-motion-capture {
+  border-color: var(--primary);
+  border-width: 2px;
+}
+
 
 /* ~~~~~~~~~~~~ ASIDE ~~~~~~~~~~~~ */
 
@@ -1047,8 +1151,16 @@ header .shop-button:hover {
   #camera-actions #shutter {
     width: 40px;
     height: 40px;
-    outline: 5px solid #fff;
+    outline: 4px solid #fff;
     bottom: 25px;
+  }
+  #camera-actions #shutter::before {
+    width: 40px;
+    height: 40px;
+  }
+  #camera-actions #shutter:active::before {
+    width: 34px;
+    height: 34px;
   }
 
   .gallery .img-gallery .item .head {
@@ -1066,10 +1178,6 @@ header .shop-button:hover {
   }
   .img-details .icon {
     user-select: none;
-  }
-
-  .container .livestream .main-box {
-    height: 246px;
   }
 
   .container .livestream .main-box .timer span {

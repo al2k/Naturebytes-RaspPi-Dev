@@ -136,14 +136,14 @@ function takePhoto() {
     const formData = new FormData();
     formData.append('file', blob, 'photo.png');
 
-    fetch('http://127.0.0.1:5000/upload', {  // Change the endpoint accordingly
+    fetch(uploadRoute, {  // Change the endpoint accordingly
       method: 'POST',
       body: formData
     })
     .then(response => response.json())
     .then(data => {
       // request new recent images
-      fetch('http://127.0.0.1:5000/recent-photos')
+    fetch(recentPhotosRoute)
       .then(response => response.json())
       .then(data => {
         const galleryImagesOld = document.querySelectorAll(".gallery-image");
