@@ -5,6 +5,9 @@ import binascii
 from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify
 from threading          import Condition
 from multiprocessing    import shared_memory
+from picamera2          import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs  import FileOutput
 
 # Michal's imports
 import cv2
@@ -154,7 +157,7 @@ def delete_image():
 
     return "Success", 204
 
-rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
+rpi_cam_available = True   # Michal's variable meaning that he has no Pi Camera at hand
 def gen():
     """Video streaming generator function."""
 
@@ -229,7 +232,7 @@ def stop_camera():
 
 @app.route('/watch_live')
 def watch_live():
-    shm.buf[0] = LIVE_STREAM
+    shm.buf[0] = TURN_OFF_PICTURES
     return jsonify({'message': 'Live stream started'}), 201
 
 
