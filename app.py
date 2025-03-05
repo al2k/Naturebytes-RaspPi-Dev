@@ -40,6 +40,7 @@ except FileExistsError:
 
 # Default to taking still pictures
 shm.buf[0]=STILL_PICTURES
+log.info(f"SM:{shm.buf[0]}")
 
 
 def encode(x):

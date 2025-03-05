@@ -27,13 +27,6 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
-try:
-    shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
-    log.info("Created shared memory camera_control")
-    shm.buf[0] = 1
-except FileExistsError:
-    shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
-
 
 def what_os():
     path = "/etc/os-release"
@@ -94,19 +87,31 @@ def take_photo(command, save_to, use_overlay, video):
 
 def camera(save_to='./', use_overlay=False, video=False):
 
+
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
-    if '12' in version:
-        cam_command = 'rpicam-still' if not video else 'rpicam-vid -t 10s'
-    else:
-        cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
+    shm = None
+    while not shm:
+        try:
+            shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
+            log.info("SM:{shm.buf[0]")
+        except Exception as e:
+            log.error("No shared memory")
+
+        time.sleep(1)
 
     while True:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
             log.info(f"SM:{shm.buf[0]}")
+
             if shm.buf[0]:
+                if '12' in version:
+                    cam_command = 'rpicam-still' if not video else 'rpicam-vid -t 10s'
+                else:
+                    cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
+
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(20)
