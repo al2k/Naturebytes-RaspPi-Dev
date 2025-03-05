@@ -6,10 +6,9 @@ import csv
 import time
 import arrow
 import logging
-
-
 import RPi.GPIO as GPIO
 
+from log             import log
 from subprocess      import run
 from multiprocessing import shared_memory
 
@@ -28,15 +27,11 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
-create = True
 try:
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+    shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
 except FileExistsError:
-    create = False
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+    shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 
-# Default to taking still pictures
-shm.buf[0]=1
 
 def what_os():
     path = "/etc/os-release"
@@ -108,6 +103,7 @@ def camera(save_to='./', use_overlay=False, video=False):
     while True:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
+            log.info(f"SM:{shm.buf[0]}")
             if shm.buf[0]:
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)

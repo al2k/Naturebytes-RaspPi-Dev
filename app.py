@@ -32,10 +32,9 @@ VIDEO_CLIPS = 2
 LIVE_STREAM = 3
 create = True
 try:
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+    shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
 except FileExistsError:
-    create = False
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
+    shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 
 # Default to taking still pictures
 shm.buf[0]=STILL_PICTURES
@@ -89,7 +88,6 @@ def get_photo_paths(limit=6, page=0):
 def home():
     image_paths, _ = get_photo_paths(6, 0)
 
-    camera_state = 0
     if shm.buf[0] == TURN_OFF_PICTURES:
         camera_state = 2
     elif shm.buf[0] == STILL_PICTURES or shm.buf[0] == VIDEO_CLIPS:
@@ -205,6 +203,7 @@ def gen():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
+    shm.buf[0] = TURN_OFF_PICTURES
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
