@@ -106,6 +106,7 @@ def home():
     return render_template('index.html', images=image_paths, camera_state=camera_state, motion_state=motion_state)
 
 
+@app.route('/gallery/', defaults={'page': 0})
 @app.route('/gallery/<int:page>')
 def gallery(page):
     per_page = 18
