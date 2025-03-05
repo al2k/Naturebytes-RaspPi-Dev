@@ -3,7 +3,7 @@ Description=Start web server
 
 [Service]
 WorkingDirectory=/usr/local/src
-ExecStart=gunicorn -w 1 --timeout 120  -b 0.0.0.0 app:app
+ExecStart=gunicorn -w 1 -t 0  -b 0.0.0.0 app:app
 SyslogIdentifier=SRV_APP
 Restart=always
 RestartSec=30
