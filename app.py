@@ -33,8 +33,8 @@ LIVE_STREAM = 3
 
 
 try:
-    log.info("Creating shared memory camera_control")
     shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
+    log.info("Creating shared memory camera_control")
 except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 

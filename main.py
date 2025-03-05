@@ -29,6 +29,8 @@ GPIO.setup(BATTERY_PIN, GPIO.IN)
 
 try:
     shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
+    log.info("Created shared memory camera_control")
+    shm.buf[0] = 1
 except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 
