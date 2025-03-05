@@ -1,5 +1,5 @@
 set -x
-if [$1=='full']; then
+if [$1=="full"]; then
 sudo apt update
 sudo apt upgrade
 sudo apt -y install python3-rpi.gpio python3-flask git imagemagick
@@ -9,6 +9,6 @@ fi
 
 git clone https://github.com/naturebytes/Naturebytes-RaspPi-Dev.git
 cd Naturebytes-RaspPi-Dev
-sudo cp *.py /usr/local/src
+sudo cp ./*.py /usr/local/src
 sudo cp -r static /usr/local/src
 sudo cp -r templates /usr/local/src
