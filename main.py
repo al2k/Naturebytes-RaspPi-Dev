@@ -107,7 +107,7 @@ def camera(save_to='./', use_overlay=False, video=False):
             if shm.buf[0]:
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
-                time.sleep(10)
+            time.sleep(20)
 
 
 if __name__ == "__main__":

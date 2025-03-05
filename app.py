@@ -1,5 +1,8 @@
 import io
 import os
+import cv2
+import time
+import math
 import binascii
 
 from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify
@@ -9,11 +12,8 @@ from picamera2          import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs  import FileOutput
 
-# Michal's imports
-import cv2
-import time
-import math
-import random
+# Local
+from log import log
 
 
 app = Flask("Image Gallery")
@@ -30,8 +30,10 @@ TURN_OFF_PICTURES = 0
 STILL_PICTURES = 1
 VIDEO_CLIPS = 2
 LIVE_STREAM = 3
-create = True
+
+
 try:
+    log.info("Creating shared memory camera_control")
     shm = shared_memory.SharedMemory('camera_control',create=True, size=1)
 except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
@@ -65,7 +67,6 @@ def get_photo_paths(limit=6, page=0):
         @page - current page number
         :return a list of image paths in the photo directory.
     """
-
     photo_dir = os.path.join(app.config.root_path, "static/photos/")
     image_paths = []
     for root,dirs,files in os.walk(photo_dir):
@@ -172,6 +173,7 @@ def gen():
                         b'Content-Type: image/jpeg\r\n'
                         b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
                         b'\r\n' + frame + b'\r\n')
+
     else:
         """ Simulate the Pi Camera with a regular webcam """
         video_path = os.path.join("static", "assets", "random_video.mp4")
@@ -204,6 +206,7 @@ def gen():
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     shm.buf[0] = TURN_OFF_PICTURES
+    log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -214,24 +217,28 @@ def capture_video():
     :return: Success
     """
     shm.buf[0] = VIDEO_CLIPS
+    log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Video capture started'}), 201
 
 
 @app.route('/capture_image')
 def capture_image():
     shm.buf[0] = STILL_PICTURES
+    log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
 
 
 @app.route('/stop_camera')
 def stop_camera():
     shm.buf[0] = TURN_OFF_PICTURES
+    log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
 
 
 @app.route('/watch_live')
 def watch_live():
     shm.buf[0] = TURN_OFF_PICTURES
+    log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Live stream started'}), 201
 
 
