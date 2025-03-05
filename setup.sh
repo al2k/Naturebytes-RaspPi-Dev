@@ -9,4 +9,3 @@ cd Naturebytes-RaspPi-Dev
 sudo cp *.py /usr/local/src
 sudo cp -r static /usr/local/src
 sudo cp -r templates /usr/local/src
-sudo cp -r photos /usr/local/src

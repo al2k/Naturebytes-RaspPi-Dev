@@ -3,10 +3,11 @@ Description=Start the camera service
 
 [Service]
 WorkingDirectory=/usr/local/src
-ExecStart=/usr/local/bin/python3 /usr/local/src/main.py
+ExecStart=/usr/bin/python3 /usr/local/src/main.py
 SyslogIdentifier=SRV_CAMERA
 Restart=always
 RestartSec=30
+After=web.service
 
 [Install]
 WantedBy=multi-user.target
