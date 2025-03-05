@@ -7,7 +7,7 @@ ExecStart=/usr/bin/python3 /usr/local/src/main.py
 SyslogIdentifier=SRV_CAMERA
 Restart=always
 RestartSec=30
-After=web.service
 
 [Install]
+After=web.service
 WantedBy=multi-user.target
