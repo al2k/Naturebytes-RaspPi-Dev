@@ -7,3 +7,5 @@ sudo cp systemd/web.service /etc/systemd/system
 sudo chmod 644 /etc/systemd/system/web.service
 sudo systemctl start web.service
 sudo systemctl enable web.service
+
+sudo systemctl daemon-reload
