@@ -1,3 +1,4 @@
+set -x
 sudo cp systemd/camera.service /etc/systemd/system
 sudo chmod 644 /etc/systemd/system/camera.service
 sudo systemctl start camera.service
