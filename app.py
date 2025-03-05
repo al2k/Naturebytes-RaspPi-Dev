@@ -163,18 +163,21 @@ def gen():
     """Video streaming generator function."""
 
     if rpi_cam_available:
-        with Picamera2() as picam2:
-            picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-            output = StreamingOutput()
-            picam2.start_recording(JpegEncoder(), FileOutput(output))
-            while True:
-                with output.condition:
-                    output.condition.wait()
-                    frame = output.frame
-                    yield (b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n'
-                        b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                        b'\r\n' + frame + b'\r\n')
+        try:
+            with Picamera2() as picam2:
+                picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+                output = StreamingOutput()
+                picam2.start_recording(JpegEncoder(), FileOutput(output))
+                while True:
+                    with output.condition:
+                        output.condition.wait()
+                        frame = output.frame
+                        yield (b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n'
+                            b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                            b'\r\n' + frame + b'\r\n')
+        except Exception as e:
+            log.error("Error:{} trying to start the video")
 
     else:
         """ Simulate the Pi Camera with a regular webcam """
