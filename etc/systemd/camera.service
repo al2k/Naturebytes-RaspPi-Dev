@@ -1,5 +1,6 @@
 [Unit]
 Description=Start the camera service
+After=web.service
 
 [Service]
 WorkingDirectory=/usr/local/src
@@ -9,5 +10,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-After=web.service
 WantedBy=multi-user.target

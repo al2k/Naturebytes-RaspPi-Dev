@@ -49,20 +49,9 @@
               </p>
             </div>
             <img src="{{ url_for('video_feed') }}" alt="" id="livestream" />
-            <!-- <div class="timer">
-              <img src="/static/assets/record.svg" alt="" class="icon">
-
-              <span>24:01:45</span>
-            </div> -->
             <div class="maximize-screen icon" onclick="toggleFullscreen()">
               <img src="/static/assets/maximize.svg" alt="" width="30px" class="live-icon">
             </div>
-            <!-- <div class="btn-sec">
-              <div class="play-btn icon">
-                <img src="/static/assets/play.svg" alt="" class="live-icon">
-              </div>
-            </div> -->
-
           </div>
           <div id="camera-actions">
             {% if not images %}
@@ -255,7 +244,7 @@
                 </div>
               {% endfor %}
             </div>
-            <a href="{{url_for('gallery', page=0)}}" id="view-gallery-wrapper">
+            <a href="gallery/0" id="view-gallery-wrapper">
               <img src="/static/assets/image.svg" alt="" width="20px">
               <p id="view-gallery">View your whole gallery</p>
             </a>
@@ -289,16 +278,16 @@
 
     <script>
       /* variables for file upload */
-      var uploadRoute = "{{ url_for('upload_file') }}";
-      var recentPhotosRoute = "{{ url_for('recent_photos') }}";
+      var uploadRoute = "upload_file";
+      var recentPhotosRoute = "recent_photos";
 
       /* variable for camera state */
       var currentState = parseInt("{{ camera_state }}");
       var motionState = parseInt("{{ motion_state }}");
-      var routeWatchLive = "{{ url_for('watch_live') }}";
-      var routeCaptureVideo = "{{ url_for('capture_video') }}";
-      var routeCaptureImage = "{{ url_for('capture_image') }}";
-      var routeStopCamera = "{{ url_for('stop_camera') }}";
+      var routeWatchLive = "watch_live";
+      var routeCaptureVideo = "capture_video";
+      var routeCaptureImage = "capture_image";
+      var routeStopCamera = "stop_camera";
     </script>
     <script src="/static/scripts/gallery.js"></script>
     <script src="/static/scripts/camera.js"></script>
