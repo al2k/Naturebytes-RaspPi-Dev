@@ -84,6 +84,7 @@ def take_photo(command, save_to, use_overlay, video):
             logging.info('Logo added successfully')
 
         run(["mv",f"./{photo}",f"{save_to}"])
+        log.info(f"Saved:{save_to}/{photo}")
 
 
 quit = False
@@ -95,12 +96,19 @@ def handle_signal(signum, frame):
     :return:
     """
     global quit
+    log.info(f"Signal: {signum}")
     quit = True
 
 
 def camera(save_to='./', use_overlay=False, video=False):
+    """
+    Main camera process
+    :param save_to: where to save photos
+    :param use_overlay: use the overlay
+    :param video: bool: still or short video
+    :return:
+    """
     signal.signal(signal.SIGINT, handle_signal)
-
 
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
