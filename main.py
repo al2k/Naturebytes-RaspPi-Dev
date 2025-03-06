@@ -54,7 +54,7 @@ def take_photo(command, save_to, use_overlay, video):
     if video:
         photo = now + '.h264'
     else:
-        photo = now +'.jpg'
+        photo = now +'.png'
 
     # Using the raspistill library to take a photo and show that a photo has been taken in a small preview box on the desktop
     cmd = f'{command} -o {photo}'
@@ -108,9 +108,9 @@ def camera(save_to='./', use_overlay=False, video=False):
 
             if shm.buf[0]:
                 if '12' in version:
-                    cam_command = 'rpicam-still' if not video else 'rpicam-vid -t 10s'
+                    cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
                 else:
-                    cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
+                    cam_command = 'libcamera-still -e png' if not video else 'libcamera-vid -t 10s'
 
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
