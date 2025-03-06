@@ -87,8 +87,19 @@ def take_photo(command, save_to, use_overlay, video):
 
 
 quit = False
+def handle_signal(signum, frame):
+    """
+    Clean close
+    :param signum:
+    :param frame:
+    :return:
+    """
+    global quit
+    quit = True
+
+
 def camera(save_to='./', use_overlay=False, video=False):
-    signal.signal(signal.SIGINT, handle_signal())
+    signal.signal(signal.SIGINT, handle_signal)
 
 
     # Starting with Bookworm the cammand name changed
@@ -121,15 +132,6 @@ def camera(save_to='./', use_overlay=False, video=False):
     shm.close()
 
 
-def handle_signal(signum, frame):
-    """
-    Clean close
-    :param signum:
-    :param frame:
-    :return:
-    """
-    global quit
-    quit = True
 
 
 if __name__ == "__main__":
