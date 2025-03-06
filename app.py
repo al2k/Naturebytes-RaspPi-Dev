@@ -39,7 +39,7 @@ except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 
 # Default to taking still pictures
-shm.buf[0]=STILL_PICTURES
+shm.buf[0] = STILL_PICTURES
 log.info(f"SM:{shm.buf[0]}")
 
 

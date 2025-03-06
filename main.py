@@ -5,6 +5,7 @@ import os
 import csv
 import time
 import arrow
+import signal
 import logging
 import RPi.GPIO as GPIO
 
@@ -85,7 +86,9 @@ def take_photo(command, save_to, use_overlay, video):
         run(["mv",f"./{photo}",f"{save_to}"])
 
 
+quit = False
 def camera(save_to='./', use_overlay=False, video=False):
+    signal.signal(signal.SIGINT, handle_signal())
 
 
     # Starting with Bookworm the cammand name changed
@@ -101,7 +104,7 @@ def camera(save_to='./', use_overlay=False, video=False):
 
         time.sleep(1)
 
-    while True:
+    while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
             log.info(f"SM:{shm.buf[0]}")
@@ -115,6 +118,18 @@ def camera(save_to='./', use_overlay=False, video=False):
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(10)
+    shm.close()
+
+
+def handle_signal(signum, frame):
+    """
+    Clean close
+    :param signum:
+    :param frame:
+    :return:
+    """
+    global quit
+    quit = True
 
 
 if __name__ == "__main__":
