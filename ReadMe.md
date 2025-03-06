@@ -9,3 +9,12 @@ Please visit https://naturebytes.org/ for more information
 
 
 This is the repository for the python code running on the Raspberry Pi.
+
+To install:
+1. Use the Raspberry Pi Imager to create a new image
+   1. Select the Raspberry Pi Zero 2
+   2. For the OS select Raspberry Pi OS (Other) and select Raspberry Pi OS (Lite)
+   3. Set up your SSID and password for your network
+2. SSH into your Raspberry Pi. Tools such as LanScan(Mac) or AngryIPScanner(Mac,Window) will show the devices 
+3. use nano or vi and copy the contents of setup.sh
+4. run the command ./setup.sh

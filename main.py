@@ -95,7 +95,7 @@ def camera(save_to='./', use_overlay=False, video=False):
     while not shm:
         try:
             shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
-            log.info("SM:{shm.buf[0]")
+            log.info(f"SM:{shm.buf[0]}")
         except Exception as e:
             log.error("No shared memory")
 

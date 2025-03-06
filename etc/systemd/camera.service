@@ -3,7 +3,7 @@ Description=Start the camera service
 After=web.service
 
 [Service]
-WorkingDirectory=/usr/local/src
+WorkingDirectory=/home/pi/Naturebytes-RaspPi-Dev
 ExecStart=/usr/bin/python3 /usr/local/src/main.py
 SyslogIdentifier=SRV_CAMERA
 Restart=always
