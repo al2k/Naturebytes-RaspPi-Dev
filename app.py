@@ -208,6 +208,7 @@ def gen():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
+    global release
     release = False
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
@@ -220,7 +221,6 @@ def capture_video():
     Start to capture short video instead of still images
     :return: Success
     """
-    release = True
     shm.buf[0] = VIDEO_CLIPS
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Video capture started'}), 201
@@ -228,6 +228,7 @@ def capture_video():
 
 @app.route('/capture_image')
 def capture_image():
+    global release
     release = True
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
@@ -236,6 +237,8 @@ def capture_image():
 
 @app.route('/stop_camera')
 def stop_camera():
+    global release
+    release = True
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
