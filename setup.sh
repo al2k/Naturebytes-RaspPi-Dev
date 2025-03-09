@@ -11,6 +11,7 @@ curl  -L https://raw.githubusercontent.com/nksan/Rpi-SetWiFi-viaBluetooth/main/b
 git clone https://github.com/naturebytes/Naturebytes-RaspPi-Dev.git
 cd Naturebytes-RaspPi-Dev
 
+cd etc
 sudo cp systemd/*.service /etc/systemd/system
 sudo chmod 644 /etc/systemd/system/camera.service
 sudo systemctl start camera.service
