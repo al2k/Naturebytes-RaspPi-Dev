@@ -48,3 +48,9 @@ Temporary Items
 
 # jetBrains IDE files
 .idea
+
+# pycache
+__pycache__
+
+# venv
+venv

@@ -3,3 +3,8 @@ see install picamera2
 https://forums.raspberrypi.com/viewtopic.php?t=361758
 
 https://github.com/GlassOnTin/picamera2-webstream/blob/master/picamera2_webstream/stream_picamera.py
+
+nmcli con delete <SSID>
+nmcli dev wifi connect <SSID> password <password>
+
+rpicam-vid -t 0 -l -o tcp://0.0.0.0:3333

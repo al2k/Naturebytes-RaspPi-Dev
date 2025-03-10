@@ -5,11 +5,11 @@ import os
 import csv
 import time
 import arrow
+import signal
 import logging
-
-
 import RPi.GPIO as GPIO
 
+from log             import log
 from subprocess      import run
 from multiprocessing import shared_memory
 
@@ -28,15 +28,6 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
-create = True
-try:
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
-except FileExistsError:
-    create = False
-    shm = shared_memory.SharedMemory('camera_control',create=create, size=1)
-
-# Default to taking still pictures
-shm.buf[0]=1
 
 def what_os():
     path = "/etc/os-release"
@@ -64,7 +55,7 @@ def take_photo(command, save_to, use_overlay, video):
     if video:
         photo = now + '.h264'
     else:
-        photo = now +'.jpg'
+        photo = now +'.png'
 
     # Using the raspistill library to take a photo and show that a photo has been taken in a small preview box on the desktop
     cmd = f'{command} -o {photo}'
@@ -93,26 +84,62 @@ def take_photo(command, save_to, use_overlay, video):
             logging.info('Logo added successfully')
 
         run(["mv",f"./{photo}",f"{save_to}"])
+        log.info(f"Saved:{save_to}/{photo}")
+
+
+quit = False
+def handle_signal(signum, frame):
+    """
+    Clean close
+    :param signum:
+    :param frame:
+    :return:
+    """
+    global quit
+    log.info(f"Signal: {signum}")
+    quit = True
 
 
 def camera(save_to='./', use_overlay=False, video=False):
+    """
+    Main camera process
+    :param save_to: where to save photos
+    :param use_overlay: use the overlay
+    :param video: bool: still or short video
+    :return:
+    """
+    signal.signal(signal.SIGINT, handle_signal)
 
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
-    if '12' in version:
-        cam_command = 'rpicam-still' if not video else 'rpicam-vid -t 10s'
-    else:
-        cam_command = 'libcamera-still' if not video else 'libcamera-vid -t 10s'
+    shm = None
+    while not shm:
+        try:
+            shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
+            log.info(f"SM:{shm.buf[0]}")
+        except Exception as e:
+            log.error("No shared memory")
 
-    while True:
+        time.sleep(1)
 
+    while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
         if GPIO.input(SENSOR_PIN):
+            log.info(f"SM:{shm.buf[0]}")
+
             if shm.buf[0]:
+                if '12' in version:
+                    cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
+                else:
+                    cam_command = 'libcamera-still -e png' if not video else 'libcamera-vid -t 10s'
+
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
-                time.sleep(10)
+            time.sleep(10)
+    shm.close()
+
+
 
 
 if __name__ == "__main__":
