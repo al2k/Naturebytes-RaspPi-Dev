@@ -2,8 +2,9 @@
 Description=Start web server
 
 [Service]
-WorkingDirectory=/usr/local/src
-ExecStart=gunicorn -w 1 -t 0  -b 0.0.0.0 app:app
+WorkingDirectory=/home/pi/Naturebytes-RaspPi-Dev
+ExecStart=/usr/bin/python3 app.py
+#ExecStart=gunicorn -w 1 -t 0  -b 0.0.0.0 app:app
 SyslogIdentifier=SRV_APP
 Restart=always
 RestartSec=30

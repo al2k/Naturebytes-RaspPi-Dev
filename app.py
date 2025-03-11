@@ -39,7 +39,7 @@ except FileExistsError:
     shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
 
 # Default to taking still pictures
-shm.buf[0]=STILL_PICTURES
+shm.buf[0] = STILL_PICTURES
 log.info(f"SM:{shm.buf[0]}")
 
 
@@ -159,6 +159,7 @@ def delete_image():
     return "Success", 204
 
 rpi_cam_available = True   # Michal's variable meaning that he has no Pi Camera at hand
+release = False
 def gen():
     """Video streaming generator function."""
 
@@ -167,7 +168,7 @@ def gen():
             picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
             output = StreamingOutput()
             picam2.start_recording(JpegEncoder(), FileOutput(output))
-            while True:
+            while not release:
                 with output.condition:
                     output.condition.wait()
                     frame = output.frame
@@ -207,6 +208,8 @@ def gen():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
+    global release
+    release = False
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -225,6 +228,8 @@ def capture_video():
 
 @app.route('/capture_image')
 def capture_image():
+    global release
+    release = True
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
@@ -232,6 +237,8 @@ def capture_image():
 
 @app.route('/stop_camera')
 def stop_camera():
+    global release
+    release = True
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201

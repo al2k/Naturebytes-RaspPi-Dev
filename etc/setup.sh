@@ -1,12 +1,11 @@
 set -x
-sudo cp systemd/camera.service /etc/systemd/system
-sudo chmod 644 /etc/systemd/system/camera.service
-sudo systemctl start camera.service
-sudo systemctl enable camera.service
+cp systemd/*.service /etc/systemd/system
+chmod 644 /etc/systemd/system/camera.service
+systemctl start camera.service
+systemctl enable camera.service
 
-sudo cp systemd/web.service /etc/systemd/system
-sudo chmod 644 /etc/systemd/system/web.service
-sudo systemctl start web.service
-sudo systemctl enable web.service
+chmod 644 /etc/systemd/system/web.service
+systemctl start web.service
+systemctl enable web.service
 
-sudo systemctl daemon-reload
+systemctl daemon-reload
