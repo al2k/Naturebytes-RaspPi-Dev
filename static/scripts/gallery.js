@@ -54,7 +54,63 @@ document.addEventListener("DOMContentLoaded", function () {
       closeModal();
     }
   });
+
+  const selectAllCheckbox = document.getElementById('select-all');
+  const imageCheckboxes = document.querySelectorAll('.image-select');
+
+  selectAllCheckbox.addEventListener('change', function() {
+    imageCheckboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+  });
 });
+
+function bulkDownload() {
+  const selectedImages = Array.from(document.querySelectorAll('.image-select:checked'))
+    .map(checkbox => checkbox.getAttribute('data-image'));
+  
+  if (selectedImages.length === 0) {
+    alert('Please select at least one image to download');
+    return;
+  }
+
+  selectedImages.forEach((image, index) => {
+    setTimeout(() => {
+      downloadImage(image, `image_${index + 1}.jpg`);
+    }, index * 500); // Add delay between downloads to prevent browser overload
+  });
+}
+
+function bulkDelete() {
+  const selectedImages = Array.from(document.querySelectorAll('.image-select:checked'))
+    .map(checkbox => checkbox.getAttribute('data-image'));
+  
+  if (selectedImages.length === 0) {
+    alert('Please select at least one image to delete');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to delete ${selectedImages.length} image(s)? THIS ACTION IS IRREVERSIBLE!`)) {
+    return;
+  }
+
+  fetch("/delete-images", {  // Note: You'll need to implement this endpoint on your server
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ images: selectedImages }),
+  })
+  .then((res) => {
+    if (res.status === 204) {
+      window.location.reload();
+    }
+  })
+  .catch((err) => {
+    console.error(err);
+    alert('Error deleting images');
+  });
+}
 
 
 // Function to download the image

@@ -730,6 +730,11 @@ header .shop-button:hover {
   pointer-events: none;
 }
 
+.gallery .img-gallery .item .head .image-select:hover ~ .zoom-in {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .gallery .img-gallery .item .head .zoom-in {
   position: absolute;
   width: 100%;
