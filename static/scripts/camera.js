@@ -70,8 +70,6 @@ container.addEventListener('mouseup', (e) => {
   let endX = e.clientX;
   let diff = startX - endX;
 
-  console.log(diff);
-
   if (diff > 10) {
     setActive(Math.min(1, currentIndex + 1)); // Swipe left → Next item
   } else if (diff < -10) {
@@ -105,7 +103,7 @@ function setActive(index) {
 // Take the photo by clicking the shutter
 function takePhoto() {
   if (shutterState == 1) { // Video mode
-    alert("Video mode is not supported yet. Switch back to photo mode to take photos.");
+    takeVideo();
     return;
   }
 

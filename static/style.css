@@ -154,6 +154,12 @@
 
   border-radius: 4px;
 }
+#shutter.recording::before {
+  width: 25px !important;
+  height: 25px !important;
+
+  border-radius: 4px !important;
+}
 #shutter:active::before {
   background-color: #f1b033aa;
 
