@@ -1,6 +1,5 @@
 import io
 import os
-import cv2
 import time
 import math
 import binascii
@@ -12,6 +11,9 @@ from multiprocessing    import shared_memory
 # Local
 from log import log
 
+from picamera2          import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs  import FileOutput
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
@@ -49,7 +51,7 @@ def decode(x):
     return binascii.unhexlify(x.encode('utf-8')).decode()
 
 
-class StreamingOutput(io.BufferedIOBase):
+"""class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
         self.frame = None
         self.condition = Condition()
@@ -59,6 +61,75 @@ class StreamingOutput(io.BufferedIOBase):
             self.frame = buf
             self.condition.notify_all()
 
+release = False
+def gen():
+    with Picamera2() as picam2:
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        output = StreamingOutput()
+        picam2.start_recording(JpegEncoder(), FileOutput(output))
+        while not release:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n'
+                    b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')"""
+
+
+picam2 = None
+release = False
+class StreamingOutput(io.BufferedIOBase):
+    def __init__(self):
+        self.frame = None
+        self.condition = Condition()
+
+    def write(self, buf):
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
+        return len(buf)
+
+def init_camera():
+    global picam2
+    if picam2 is None or not picam2.is_open():
+        picam2 = Picamera2()
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        picam2.start()
+    return picam2
+
+def stop_camera():
+    global picam2
+    if picam2 is not None and picam2.is_open():
+        picam2.stop()
+        picam2.close()
+        picam2 = None
+
+def gen():
+    """Video streaming generator function."""
+    camera = init_camera()
+    output = StreamingOutput()
+    
+    try:
+        while not release:
+            # Capture a JPEG buffer directly
+            buffer = io.BytesIO()
+            camera.capture_file(buffer, format='jpeg')
+            buffer.seek(0)
+            frame = buffer.getvalue()
+            
+            # Update the output object
+            output.write(frame)
+            
+            with output.condition:
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n'
+                       b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                       b'\r\n' + frame + b'\r\n')
+    except GeneratorExit:
+        stop_camera()  # Clean up when the client disconnects
+    finally:
+        stop_camera()  # Ensure camera stops
 
 def get_photo_video_paths(limit=6, page=0):
     """
@@ -175,51 +246,6 @@ def delete_images():
 
     return "Success", 204
 
-rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
-release = False
-def gen():
-    """Video streaming generator function."""
-
-    if rpi_cam_available:
-        with Picamera2() as picam2:
-            picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-            output = StreamingOutput()
-            picam2.start_recording(JpegEncoder(), FileOutput(output))
-            while not release:
-                with output.condition:
-                    output.condition.wait()
-                    frame = output.frame
-                    yield (b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n'
-                        b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                        b'\r\n' + frame + b'\r\n')
-
-    else:
-        """ Simulate the Pi Camera with a regular webcam """
-        video_path = os.path.join("static", "assets", "random_video.mp4")
-        cap = cv2.VideoCapture(video_path)  # Use a webcam or replace 0 with a video file path
-
-        if not cap.isOpened():
-            print("Error: Could not open video stream.")
-            return
-
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame_bytes = buffer.tobytes()
-
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n'
-                b'Content-Length: ' + str(len(frame_bytes)).encode() + b'\r\n'
-                b'\r\n' + frame_bytes + b'\r\n')
-            
-            # Simulating frame rate (30 FPS)
-            time.sleep(1/15)
-
-        cap.release()
 
 
 @app.route('/video_feed')
@@ -249,6 +275,7 @@ def capture_image():
     release = True
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
+    stop_camera()
     return "Success", 201
 
 
