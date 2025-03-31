@@ -27,7 +27,7 @@
       <div class="links">
         <a href="/" id="link-home" class="active-link">Camera</a>
         <a href="/gallery/0">Gallery</a>
-        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
+        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes <span id="shop-text">shop</span> ↗</a>
       </div>
     </header>
 
@@ -75,7 +75,7 @@
 
           <div id="camera-controls">
             <div id="camera-state">
-              <h3>Camera State</h3>
+              <h3>Camera Mode</h3>
               <div class="radio-wrapper">
                 <label for="live-streaming" class="radio-item">
                   <img src="/static/assets/live.svg" alt="" width="36px">
@@ -231,17 +231,23 @@
               {% for image in images %}
                 <div class="item">
                   <div class="head">
-                    <img src={{image}} alt="" class="gallery-image" />
-                    <div class="zoom-in">
-                      <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
-                    </div>
+                    {% if image[0] == "image" %}
+                      <img src={{image[1]}} alt="" class="gallery-image" />
+                      <div class="zoom-in">
+                        <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
+                      </div>
+                    {% else %}
+                      <video class="gallery-video" autoplay muted loop>
+                        <source src={{image[1]}} type="video/mp4">
+                      </video>
+                    {% endif %}
                   </div>
                   <div class="img-details">
                     <div class="icon">
-                      <div class="icon-item download" onclick="downloadImage('{{image}}')">
+                      <div class="icon-item download" onclick="downloadImage('{{image[1]}}')">
                         <img src="/static/assets/download.svg" alt="">
                       </div>
-                      <div class="icon-item" id="delete-icon" onclick="deleteImage('{{image}}')">
+                      <div class="icon-item" id="delete-icon" onclick="deleteImage('{{image[1]}}')">
                         <img src="/static/assets/delete.svg" alt="">
                       </div>
                     </div>

@@ -8,9 +8,6 @@ import binascii
 from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify
 from threading          import Condition
 from multiprocessing    import shared_memory
-from picamera2          import Picamera2
-from picamera2.encoders import JpegEncoder
-from picamera2.outputs  import FileOutput
 
 # Local
 from log import log
@@ -18,6 +15,7 @@ from log import log
 
 app = Flask("Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
+app.config['VIDEO_EXTS'] = [".webm", ".mp4", ".avi", ".mov"]
 
 """
 User a shared memory byte to control how the camera app takes pictures:
@@ -62,33 +60,41 @@ class StreamingOutput(io.BufferedIOBase):
             self.condition.notify_all()
 
 
-def get_photo_paths(limit=6, page=0):
+def get_photo_video_paths(limit=6, page=0):
     """
         @limit - number of images per page
         @page - current page number
         :return a list of image paths in the photo directory.
     """
     photo_dir = os.path.join(app.config.root_path, "static/photos/")
-    image_paths = []
+    media_paths = []
     for root,dirs,files in os.walk(photo_dir):
         for file in files:
             if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
-                image_paths.append(url_for('static', filename=f'photos/{file}', _external=True))
+                media_paths.append(("image", url_for('static', filename=f'photos/{file}', _external=True)))
+            elif any(file.endswith(ext) for ext in app.config['VIDEO_EXTS']):
+                media_paths.append(("video", url_for('static', filename=f'photos/{file}', _external=True)))
 
     start = page * limit
     end = start + limit
 
+    print(media_paths)
     # sort
-    image_paths.sort()
-    # reverse
-    image_paths = image_paths[::-1]
+    media_paths.sort(key=lambda x: os.path.getmtime(os.path.join(photo_dir, x[1].split('/')[-1])), reverse=True)
+    print("sorted: ")
+    print(media_paths)
     
-    return image_paths[start:end], len(image_paths)
+    return media_paths[start:end], len(media_paths)
+
+
+@app.route('/pir-test')
+def pir_test_route():
+    pir_test()
 
 
 @app.route('/')
 def home():
-    image_paths, _ = get_photo_paths(6, 0)
+    image_paths, _ = get_photo_video_paths(6, 0)
 
     if shm.buf[0] == TURN_OFF_PICTURES:
         camera_state = 2
@@ -110,7 +116,7 @@ def home():
 @app.route('/gallery/<int:page>')
 def gallery(page):
     per_page = 18
-    image_paths, len_image_paths = get_photo_paths(per_page, page)
+    image_paths, len_image_paths = get_photo_video_paths(per_page, page)
     return render_template(
         'gallery.html',
         images=image_paths,
@@ -145,7 +151,7 @@ def upload_file():
 
 @app.route('/recent_photos')
 def recent_photos():
-    image_paths, _ = get_photo_paths(6, 0)
+    image_paths, _ = get_photo_video_paths(6, 0)
     return jsonify(image_paths)
 
 
@@ -158,6 +164,7 @@ def delete_image():
 
     return "Success", 204
 
+
 @app.route('/delete-images', methods=['DELETE'])
 def delete_images():
     data = request.get_json()
@@ -168,6 +175,7 @@ def delete_images():
 
     return "Success", 204
 
+rpi_cam_available = False   # Michal's variable meaning that he has no Pi Camera at hand
 release = False
 def gen():
     """Video streaming generator function."""
@@ -209,7 +217,7 @@ def gen():
                 b'\r\n' + frame_bytes + b'\r\n')
             
             # Simulating frame rate (30 FPS)
-            time.sleep(1/30)
+            time.sleep(1/15)
 
         cap.release()
 
@@ -219,7 +227,7 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     global release
     release = False
-    shm.buf[0] = TURN_OFF_PICTURES
+    shm.buf[0] = LIVE_STREAM
     log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -255,7 +263,7 @@ def stop_camera():
 
 @app.route('/watch_live')
 def watch_live():
-    shm.buf[0] = TURN_OFF_PICTURES
+    shm.buf[0] = LIVE_STREAM
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Live stream started'}), 201
 

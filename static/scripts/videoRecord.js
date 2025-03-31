@@ -23,17 +23,22 @@ function takeVideo() {
 }
 
 function startVideoRecording(livestream) {
-  // Set up canvas to capture frames
   const canvas = document.createElement('canvas');
-  canvas.width = 640; // Match your stream resolution (640x480)
-  canvas.height = 480;
+  let livestreamWidth = livestream.width;
+  let livestreamHeight = livestream.height;
+
+  if (livestreamWidth > 640) {
+    livestreamHeight = (livestreamHeight / livestreamWidth) * 640;
+    livestreamWidth = 640;
+  }
+
+  canvas.width = livestreamWidth;
+  canvas.height = livestreamHeight;
   const ctx = canvas.getContext('2d');
 
-  // Create a MediaStream from the canvas
-  canvasStream = canvas.captureStream(frameRate); // Creates a stream at the specified FPS
-  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
+  canvasStream = canvas.captureStream(frameRate);
+  mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm; codecs=vp8' });
 
-  // Collect recorded data
   recordedChunks = [];
   mediaRecorder.ondataavailable = (event) => {
     if (event.data.size > 0) {
@@ -41,20 +46,18 @@ function startVideoRecording(livestream) {
     }
   };
 
-  // When recording stops, save and upload
   mediaRecorder.onstop = () => {
     downloadVideo();
     isRecording = false;
-    livestream.style.border = "none"; // Reset feedback
+    livestream.style.border = "none";
   };
 
-  // Start recording
+  // Start recording first, then begin capturing frames
   mediaRecorder.start();
   isRecording = true;
-  livestream.style.border = "2px solid red"; // Visual feedback
+  livestream.style.border = "2px solid red";
 
-  // Capture frames from the <img> element
-  captureFrames(livestream, ctx);
+  captureFrames(livestream, ctx); // Start frame capture after recorder is active
 }
 
 function captureFrames(livestream, ctx) {
@@ -63,10 +66,8 @@ function captureFrames(livestream, ctx) {
   // Draw the current <img> frame to the canvas
   ctx.drawImage(livestream, 0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  // Schedule the next frame
-  requestAnimationFrame(() => captureFrames(livestream, ctx));
-  // Alternatively, use setTimeout for stricter timing:
-  // setTimeout(() => captureFrames(livestream, ctx), 1000 / frameRate);
+  // Schedule the next frame at the specified frame rate
+  setTimeout(() => captureFrames(livestream, ctx), 1000 / frameRate);
 }
 
 function stopVideoRecording() {

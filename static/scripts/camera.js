@@ -122,11 +122,8 @@ function takePhoto() {
   // convert the img to canvas and download
   const canvas = document.createElement('canvas');
 
-  // the width of livestream element can be different to the feed width
-  let feedWidth = 1280;
-  let feedHeight = 720;
-  canvas.width = feedWidth;
-  canvas.height = feedHeight;
+  canvas.width = livestream.width;
+  canvas.height = livestream.height;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(livestream, 0, 0, canvas.width, canvas.height);
 
