@@ -51,7 +51,7 @@ def decode(x):
     return binascii.unhexlify(x.encode('utf-8')).decode()
 
 
-"""class StreamingOutput(io.BufferedIOBase):
+class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
         self.frame = None
         self.condition = Condition()
@@ -61,8 +61,10 @@ def decode(x):
             self.frame = buf
             self.condition.notify_all()
 
-release = False
+
 def gen():
+    """Video streaming generator function."""
+    return
     with Picamera2() as picam2:
         picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
         output = StreamingOutput()
@@ -74,62 +76,8 @@ def gen():
                 yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n'
                     b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                    b'\r\n' + frame + b'\r\n')"""
+                    b'\r\n' + frame + b'\r\n')
 
-
-picam2 = None
-release = False
-class StreamingOutput(io.BufferedIOBase):
-    def __init__(self):
-        self.frame = None
-        self.condition = Condition()
-
-    def write(self, buf):
-        with self.condition:
-            self.frame = buf
-            self.condition.notify_all()
-        return len(buf)
-
-def init_camera():
-    global picam2
-    if picam2 is None or not picam2.is_open():
-        picam2 = Picamera2()
-        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-        picam2.start()
-    return picam2
-
-def stop_camera():
-    global picam2
-    if picam2 is not None and picam2.is_open():
-        picam2.stop()
-        picam2.close()
-        picam2 = None
-
-def gen():
-    """Video streaming generator function."""
-    camera = init_camera()
-    output = StreamingOutput()
-    
-    try:
-        while not release:
-            # Capture a JPEG buffer directly
-            buffer = io.BytesIO()
-            camera.capture_file(buffer, format='jpeg')
-            buffer.seek(0)
-            frame = buffer.getvalue()
-            
-            # Update the output object
-            output.write(frame)
-            
-            with output.condition:
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n'
-                       b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                       b'\r\n' + frame + b'\r\n')
-    except GeneratorExit:
-        stop_camera()  # Clean up when the client disconnects
-    finally:
-        stop_camera()  # Ensure camera stops
 
 def get_photo_video_paths(limit=6, page=0):
     """
@@ -149,11 +97,8 @@ def get_photo_video_paths(limit=6, page=0):
     start = page * limit
     end = start + limit
 
-    print(media_paths)
     # sort
     media_paths.sort(key=lambda x: os.path.getmtime(os.path.join(photo_dir, x[1].split('/')[-1])), reverse=True)
-    print("sorted: ")
-    print(media_paths)
     
     return media_paths[start:end], len(media_paths)
 
@@ -305,5 +250,6 @@ if __name__=="__main__":
                         default=5000, help='port to listen on [5000]')
     args = parser.parse_args()
     '''
+    pass
     #app.config[]
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True, port=80)
