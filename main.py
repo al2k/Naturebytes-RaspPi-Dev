@@ -163,4 +163,4 @@ if __name__ == "__main__":
     args.add_argument('-v', '--video',   action='store_true', default=False)
 
     values = args.parse_args()
-    camera(values.save_to, values.overlay, values.video)
+    camera(values.save_to, values.overlay)
