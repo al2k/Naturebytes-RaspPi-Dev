@@ -201,7 +201,6 @@ def delete_images():
     return "Success", 204
 
 
-
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
@@ -245,9 +244,7 @@ def stop_camera():
 
 @app.route('/watch_live')
 def watch_live():
-    shm.buf[0] = LIVE_STREAM
-    log.info(f"SM:{shm.buf[0]}")
-    return jsonify({'message': 'Live stream started'}), 201
+    return redirect("/video_feed")
 
 
 if __name__=="__main__":
