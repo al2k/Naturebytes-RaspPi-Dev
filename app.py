@@ -4,7 +4,7 @@ import time
 import math
 import binascii
 
-from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify
+from flask              import Flask, Response, request, render_template, send_from_directory, url_for, jsonify, redirect
 from threading          import Condition
 from multiprocessing    import shared_memory
 
@@ -29,7 +29,8 @@ User a shared memory byte to control how the camera app takes pictures:
 TURN_OFF_PICTURES = 0
 STILL_PICTURES = 1
 VIDEO_CLIPS = 2
-LIVE_STREAM = 3
+LIVE_FEED = 3
+
 
 
 try:
@@ -64,19 +65,27 @@ class StreamingOutput(io.BufferedIOBase):
 
 def gen():
     """Video streaming generator function."""
-    return
-    with Picamera2() as picam2:
-        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-        output = StreamingOutput()
-        picam2.start_recording(JpegEncoder(), FileOutput(output))
-        while not release:
-            with output.condition:
-                output.condition.wait()
-                frame = output.frame
-                yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n'
-                    b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                    b'\r\n' + frame + b'\r\n')
+    while True:
+        try:
+            picam2 = Picamera2()
+        except Exception as e:
+            log.error(f"Error:{e} trying to open camera")
+            sleep(5)
+        else:
+            break
+
+    picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+    output = StreamingOutput()
+    picam2.start_recording(JpegEncoder(), FileOutput(output))
+    while not release:
+        with output.condition:
+            output.condition.wait()
+            frame = output.frame
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n'
+                b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                b'\r\n' + frame + b'\r\n')
+    picam2.close()
 
 
 def get_photo_video_paths(limit=6, page=0):
@@ -197,8 +206,8 @@ def delete_images():
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     global release
+    shm.buf[0] = LIVE_FEED
     release = False
-    shm.buf[0] = LIVE_STREAM
     log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -209,6 +218,8 @@ def capture_video():
     Start to capture short video instead of still images
     :return: Success
     """
+    global release
+    release = True
     shm.buf[0] = VIDEO_CLIPS
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Video capture started'}), 201
@@ -220,7 +231,6 @@ def capture_image():
     release = True
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
-    stop_camera()
     return "Success", 201
 
 

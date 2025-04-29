@@ -28,6 +28,18 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
+"""
+User a shared memory byte to control how the camera app takes pictures:
+    0 - turn of pictures
+    1 - still pictures
+    2 - video clips of 10 seconds
+    3 - live stream
+"""
+TURN_OFF_PICTURES = 0
+STILL_PICTURES = 1
+VIDEO_CLIPS = 2
+LIVE_FEED = 3
+
 
 def what_os():
     path = "/etc/os-release"
@@ -100,7 +112,7 @@ def handle_signal(signum, frame):
     quit = True
 
 
-def camera(save_to='./', use_overlay=False, video=False):
+def camera(save_to='./', use_overlay=False):
     """
     Main camera process
     :param save_to: where to save photos
@@ -125,21 +137,18 @@ def camera(save_to='./', use_overlay=False, video=False):
 
     while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
-        if GPIO.input(SENSOR_PIN):
-            log.info(f"SM:{shm.buf[0]}")
-
-            if shm.buf[0]:
-                if '12' in version:
-                    cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
-                else:
-                    cam_command = 'libcamera-still -e png' if not video else 'libcamera-vid -t 10s'
+        if shm.buf[0] in (STILL_PICTURES, VIDEO_CLIPS):
+            if GPIO.input(SENSOR_PIN):
+                log.info(f"SM:{shm.buf[0]}")
 
                 video = False if shm.buf[0] == 1 else True
+                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(10)
+        else:
+            time.sleep(1)
+
     shm.close()
-
-
 
 
 if __name__ == "__main__":
