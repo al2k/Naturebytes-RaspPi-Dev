@@ -65,27 +65,18 @@ class StreamingOutput(io.BufferedIOBase):
 
 def gen():
     """Video streaming generator function."""
-    while True:
-        try:
-            picam2 = Picamera2()
-        except Exception as e:
-            log.error(f"Error:{e} trying to open camera")
-            sleep(5)
-        else:
-            break
-
-    picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-    output = StreamingOutput()
-    picam2.start_recording(JpegEncoder(), FileOutput(output))
-    while not release:
-        with output.condition:
-            output.condition.wait()
-            frame = output.frame
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n'
-                b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                b'\r\n' + frame + b'\r\n')
-    picam2.close()
+    with Picamera2() as picam2:
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        output = StreamingOutput()
+        picam2.start_recording(JpegEncoder(), FileOutput(output))
+        while not release:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n'
+                    b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')
 
 
 def get_photo_video_paths(limit=6, page=0):
