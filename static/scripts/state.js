@@ -38,6 +38,7 @@ function updateCameraState(state, initial=false) {
     switch (state) {
         case LIVESTREAMING:
             videoFeedDiv.style.display = "block";
+	    videoFeedDiv.src = routeWatchLive;
             motionCaptureDiv.style.display = "none";
             turnedOffDiv.style.display = "none";
 

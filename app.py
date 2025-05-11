@@ -1,6 +1,5 @@
 import io
 import os
-import cv2
 import time
 import math
 import binascii
@@ -158,28 +157,70 @@ def delete_image():
 
     return "Success", 204
 
-release = False
+import threading
+camera = None
+camera_lock = threading.Lock()
+
+def initialize_camera():
+    """Initialize the camera if not already initialized"""
+    global camera
+    with camera_lock:
+        if camera is None:
+            camera = Picamera2()
+            camera_config = camera.create_preview_configuration(
+                main={"size": (640, 480), "format": "RGB888"}
+            )
+            camera.configure(camera_config)
+
+
+def release_camera():
+    """Safely release the camera"""
+    global camera, video_stream_active
+    with camera_lock:
+        if camera is not None:
+            try:
+                if video_stream_active:
+                    camera.stop()
+                    video_stream_active = False
+                camera.close()
+            except:
+                pass  # Ignore errors during cleanup
+            finally:
+                camera = None
+
+video_stream_active = False
+camera_state = 0
+
 def gen():
-    """Video streaming generator function."""
-    log.info("Video Streaming")
+    """Video streaming generator function"""
+    global camera, video_stream_active
 
-    with Picamera2() as picam2:
+    initialize_camera()
 
-        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-        output = StreamingOutput()
-        picam2.start_recording(JpegEncoder(), FileOutput(output))
-        while not release:
-            with output.condition:
-                output.condition.wait()
-                frame = output.frame
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n'
-                       b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                       b'\r\n' + frame + b'\r\n')
-        picam2.stop_recording()
-    log.info("Stop Recording")
+    with camera_lock:
+        if not video_stream_active:
+            camera.start()
+            video_stream_active = True
 
+    try:
+        while camera_state == 0:  # Only stream when in livestreaming mode
+            with camera_lock:
+                if camera is None or not video_stream_active:
+                    break
+
+                stream = io.BytesIO()
+                camera.capture_file(stream, format='jpeg')
+                stream.seek(0)
+                frame = stream.read()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    finally:
+        # Clean up when streaming stops
+        if camera_state != 0:
+            release_camera()
         
+
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
