@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function updateCameraState(state, initial=false) {
+    videoFeedDiv.src = "#";
     switch (state) {
         case LIVESTREAMING:
             videoFeedDiv.style.display = "block";
@@ -46,6 +47,7 @@ function updateCameraState(state, initial=false) {
             motionCaptureState.style.display = "none";
 
             if (initial) break;
+	    /*
             fetch(routeWatchLive)
                 .then(response => {
                     if (response.ok) {
@@ -55,7 +57,7 @@ function updateCameraState(state, initial=false) {
                     }
                 }).catch(error => {
                     console.log("Error: " + error);
-                });
+                });*/
             break;
         case MOTION_CAPTURE:
             videoFeedDiv.style.display = "none";
