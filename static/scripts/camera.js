@@ -173,9 +173,17 @@ function takePhoto() {
                             const head = document.createElement("div");
                             head.classList.add("head");
 
-                            const img = document.createElement("img");
-                            img.src = image[1];
-                            img.classList.add("gallery-image");
+                            if (image[0] == "image") {
+                                const video = document.createElement("video");
+                                const source = document.createElement("source");
+                                source.src = image[1];
+                                source.type = "video/mp4";
+                                video.appendChild(source);
+                            } else {
+                                const img = document.createElement("img");
+                                img.src = image[1];
+                                img.classList.add("gallery-image");
+                            }
 
                             const zoom = document.createElement("div");
                             zoom.classList.add("zoom-in");
@@ -186,7 +194,11 @@ function takePhoto() {
                             zoomIcon.id = "zoom-icon";
 
                             zoom.appendChild(zoomIcon);
-                            head.appendChild(img);
+                            if (image[0] == "video") {
+                                head.appendChild(video);
+                            } else {
+                                head.appendChild(img);
+                            }
                             head.appendChild(zoom);
 
                             const imgDetails = document.createElement("div");
