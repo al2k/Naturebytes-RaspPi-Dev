@@ -174,15 +174,21 @@ function takePhoto() {
                             head.classList.add("head");
 
                             if (image[0] == "image") {
+                                const img = document.createElement("img");
+                                img.src = image[1];
+                                img.classList.add("gallery-image");
+                                head.appendChild(img);
+                            } else {
                                 const video = document.createElement("video");
+				video.classList.add("gallery-video");
+	  			video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
                                 const source = document.createElement("source");
                                 source.src = image[1];
                                 source.type = "video/mp4";
                                 video.appendChild(source);
-                            } else {
-                                const img = document.createElement("img");
-                                img.src = image[1];
-                                img.classList.add("gallery-image");
+                                head.appendChild(video);
                             }
 
                             const zoom = document.createElement("div");
@@ -193,12 +199,8 @@ function takePhoto() {
                             zoomIcon.alt = "";
                             zoomIcon.id = "zoom-icon";
 
+			    console.log(image);
                             zoom.appendChild(zoomIcon);
-                            if (image[0] == "video") {
-                                head.appendChild(video);
-                            } else {
-                                head.appendChild(img);
-                            }
                             head.appendChild(zoom);
 
                             const imgDetails = document.createElement("div");
