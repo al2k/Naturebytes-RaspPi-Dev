@@ -211,6 +211,19 @@ def delete_image():
     return "Success", 204
 
 
+@app.route("/delete-images", methods=["DELETE"])
+def delete_images():
+    data = request.get_json()
+    for image in data.get("images"):
+        image_path = image.split("photos/")[1]
+        abs_path = os.path.join(
+            app.config.root_path, os.path.join("static", "photos", image_path)
+        )
+        os.remove(abs_path)
+
+    return "Success", 204
+
+
 import threading
 
 camera = None
