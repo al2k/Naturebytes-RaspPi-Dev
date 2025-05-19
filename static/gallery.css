@@ -17,6 +17,8 @@
     font-size: 18px;
     font-weight: 500;
     color: #888;
+
+    align-self: flex-end;
 }
 
 .pagination {
@@ -85,7 +87,147 @@
     font-weight: 500;
 }
 
+/* bulk select */
+.bulk-actions {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    gap: 15px;
+}
+
+.bulk-button {
+    padding: 8px 15px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.bulk-button:hover {
+    /* darker orange */
+    background-color: #f57c00;
+}
+
+.bulk-button:nth-child(3) {  /* Delete button */
+    background-color: #f44336;
+}
+
+.bulk-button:nth-child(3):hover {
+    background-color: #da190b;
+}
+
+#select-all-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.image-select {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    width: 30px; /* Larger size */
+    height: 30px;
+    -webkit-appearance: none; /* Remove default styling */
+    -moz-appearance: none;
+    appearance: none;
+    background-color: white;
+    border: 2px solid var(--primary);
+    border-radius: 5px; /* Softer corners like pagination */
+    cursor: pointer;
+}
+
+.image-select:hover {
+    background-color: #bbb;
+}
+
+.image-select:checked {
+    background-color: var(--primary); /* Match pagination text color */
+}
+
+.image-select:checked::after {
+    content: '✔'; /* Checkmark symbol */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.checkbox-button {
+    width: 24px;
+    height: 24px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: white;
+    border: 2px solid #888;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 5px rgba(220,220,220,0.8);
+    margin-right: 8px;
+
+    display: inline-block !important;
+}
+
+.checkbox-button:checked {
+    background-color: #666;
+    position: relative;
+}
+
+.checkbox-button:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.bulk-actions label {
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.head {
+    position: relative;
+}
+
 @media (max-width: 768px) {
+    .bulk-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .bulk-button {
+        width: 100%;
+    }
+
+    #select-all {
+        width: 20px;
+        height: 20px;
+    }
+
+    .image-select {
+        width: 24px;
+        height: 24px;
+    }
+
+    .image-select:checked::after {
+        font-size: 16px;
+    }
+    
     .gallery-desc {
         flex-direction: column;
         align-items: flex-start;

@@ -4,6 +4,10 @@
   --text-color: #121212;
 }
 
+a {
+  text-decoration: none !important;
+}
+
 /* TEST */
 #camera-actions {
   background-color: var(--text-color);
@@ -154,6 +158,12 @@
 
   border-radius: 4px;
 }
+#shutter.recording::before {
+  width: 25px !important;
+  height: 25px !important;
+
+  border-radius: 4px !important;
+}
 #shutter:active::before {
   background-color: #f1b033aa;
 
@@ -229,6 +239,22 @@ input[type="radio"] {
   font-weight: 600;
 }
 
+#gallery-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+.media-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.media-selector-child {
+  display: flex;
+  align-items: center;
+}
+
 #capturing-content h3 {
   text-align: right;
 }
@@ -260,7 +286,7 @@ input[type="radio"] {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Raleway", sans-serif;
   color: var(--text-color);
 }
 
@@ -299,6 +325,7 @@ header .active-link {
 
 header .links a {
   transition: 0.15s ease;
+  text-decoration: none;
 }
 header .links a:hover {
   color: var(--primary);
@@ -571,7 +598,6 @@ header .shop-button:hover {
 }
 .aside #pir-sensor-toggle .name {
   transition: 0.15s ease;
-  text-decoration: underline;
 }
 .aside #pir-sensor-toggle:hover .name {
   color: var(--primary);
@@ -730,6 +756,11 @@ header .shop-button:hover {
   pointer-events: none;
 }
 
+.gallery .img-gallery .item .head .image-select:hover ~ .zoom-in {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .gallery .img-gallery .item .head .zoom-in {
   position: absolute;
   width: 100%;
@@ -745,7 +776,8 @@ header .shop-button:hover {
   transition: 0.25s ease-out;
 }
 
-.gallery .img-gallery .item .head img {
+.gallery .img-gallery .item .head img,
+.gallery .img-gallery .item .head video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1148,7 +1180,7 @@ header .shop-button:hover {
     font-size: 13px;
     font-weight: 600;
   }
-  header #link-home {
+  #shop-text {
     display: none;
   }
   header .shop-button {
