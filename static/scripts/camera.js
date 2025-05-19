@@ -167,8 +167,6 @@ function takePhoto() {
                         }
 
                         for (const image of data) {
-                            console.log(image);
-
                             const item = document.createElement("div");
                             item.classList.add("item");
 
@@ -176,7 +174,7 @@ function takePhoto() {
                             head.classList.add("head");
 
                             const img = document.createElement("img");
-                            img.src = image;
+                            img.src = image[1];
                             img.classList.add("gallery-image");
 
                             const zoom = document.createElement("div");
