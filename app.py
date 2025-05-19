@@ -126,7 +126,7 @@ def download_file(filepath):
     return send_from_directory(dir, filename, as_attachment=False)
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload_file', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -142,7 +142,7 @@ def upload_file():
     return jsonify({'message': 'File uploaded successfully'}), 201
 
 
-@app.route('/recent-photos')
+@app.route('/recent_photos')
 def recent_photos():
     image_paths, _ = get_photo_paths(6, 0)
     return jsonify(image_paths)
