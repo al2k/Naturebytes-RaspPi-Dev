@@ -140,8 +140,6 @@ def camera(save_to='./', use_overlay=False, video=False):
     shm.close()
 
 
-
-
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')

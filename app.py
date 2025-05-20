@@ -158,58 +158,34 @@ def delete_image():
 
     return "Success", 204
 
-rpi_cam_available = True   # Michal's variable meaning that he has no Pi Camera at hand
 release = False
 def gen():
     """Video streaming generator function."""
+    global release
 
-    if rpi_cam_available:
-        with Picamera2() as picam2:
-            picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-            output = StreamingOutput()
-            picam2.start_recording(JpegEncoder(), FileOutput(output))
-            while not release:
-                with output.condition:
-                    output.condition.wait()
-                    frame = output.frame
-                    yield (b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n'
-                        b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
-                        b'\r\n' + frame + b'\r\n')
+    log.info("Video start recording")
+    with Picamera2() as picam2:
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        output = StreamingOutput()
+        picam2.start_recording(JpegEncoder(), FileOutput(output))
 
-    else:
-        """ Simulate the Pi Camera with a regular webcam """
-        video_path = os.path.join("static", "assets", "random_video.mp4")
-        cap = cv2.VideoCapture(video_path)  # Use a webcam or replace 0 with a video file path
+        while not release:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n'
+                    b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')
 
-        if not cap.isOpened():
-            print("Error: Could not open video stream.")
-            return
-
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame_bytes = buffer.tobytes()
-
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n'
-                b'Content-Length: ' + str(len(frame_bytes)).encode() + b'\r\n'
-                b'\r\n' + frame_bytes + b'\r\n')
-            
-            # Simulating frame rate (30 FPS)
-            time.sleep(1/30)
-
-        cap.release()
-
+    log.info("Video stop recording")
 
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     global release
     release = False
+
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -221,6 +197,9 @@ def capture_video():
     Start to capture short video instead of still images
     :return: Success
     """
+    global release
+    release = True
+
     shm.buf[0] = VIDEO_CLIPS
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({'message': 'Video capture started'}), 201
@@ -228,8 +207,13 @@ def capture_video():
 
 @app.route('/capture_image')
 def capture_image():
+    """
+    Release video and let camera capture images
+    :return:
+    """
     global release
     release = True
+
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
@@ -237,8 +221,13 @@ def capture_image():
 
 @app.route('/stop_camera')
 def stop_camera():
+    """
+    Release the camera and stop all camera activity
+    :return:
+    """
     global release
     release = True
+
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
