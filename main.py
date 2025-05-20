@@ -130,9 +130,8 @@ def camera(save_to='./', use_overlay=False, video=False):
 
     while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
+        log.info(f"SM:{shm.buf[0]}")
         if GPIO.input(SENSOR_PIN):
-            log.info(f"SM:{shm.buf[0]}")
-
             if shm.buf[0]:
                 if '12' in version:
                     cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
@@ -142,13 +141,15 @@ def camera(save_to='./', use_overlay=False, video=False):
                 video = False if shm.buf[0] == 1 else True
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(10)
+        else:
+            time.sleep(1)
     shm.close()
 
 
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = './static/photos'
+    save_to = os.path.dirname(os.path.abspath(__file__))+'/static/photos/'
     overlay = True
     video = False
 
