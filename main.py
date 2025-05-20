@@ -148,7 +148,7 @@ def camera(save_to='./', use_overlay=False, video=False):
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = '/usr/local/src/static/photos'
+    save_to = './static/photos'
     overlay = True
     video = False
 
