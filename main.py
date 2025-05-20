@@ -108,6 +108,8 @@ def camera(save_to='./', use_overlay=False, video=False):
     :param video: bool: still or short video
     :return:
     """
+    global quit
+
     signal.signal(signal.SIGINT, handle_signal)
 
     # Starting with Bookworm the cammand name changed
@@ -115,6 +117,9 @@ def camera(save_to='./', use_overlay=False, video=False):
     version = os_release.get('VERSION')
     shm = None
     while not shm:
+        if quit:
+            break
+
         try:
             shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
             log.info(f"SM:{shm.buf[0]}")
