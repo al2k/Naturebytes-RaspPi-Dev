@@ -331,10 +331,6 @@ def capture_video():
     """
     global release
     release = True
-<<<<<<< HEAD
-=======
-
->>>>>>> a3770ddc4bda0c325b7cf04aa25e3512537420ad
     shm.buf[0] = VIDEO_CLIPS
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({"message": "Video capture started"}), 201
