@@ -289,7 +289,27 @@ def gen():
         # Clean up when streaming stops
         if camera_state != 0:
             release_camera()
+release = False
+def gen():
+    """Video streaming generator function."""
+    global release
 
+    log.info("Video start recording")
+    with Picamera2() as picam2:
+        picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+        output = StreamingOutput()
+        picam2.start_recording(JpegEncoder(), FileOutput(output))
+
+        while not release:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n'
+                    b'Content-Length: ' + str(len(frame)).encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')
+
+    log.info("Video stop recording")
 
 @app.route("/video_feed")
 def video_feed():
@@ -297,6 +317,8 @@ def video_feed():
     global release
     shm.buf[0] = LIVE_FEED
     release = False
+
+    shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
@@ -309,6 +331,10 @@ def capture_video():
     """
     global release
     release = True
+<<<<<<< HEAD
+=======
+
+>>>>>>> a3770ddc4bda0c325b7cf04aa25e3512537420ad
     shm.buf[0] = VIDEO_CLIPS
     log.info(f"SM:{shm.buf[0]}")
     return jsonify({"message": "Video capture started"}), 201
@@ -316,8 +342,13 @@ def capture_video():
 
 @app.route("/capture_image")
 def capture_image():
+    """
+    Release video and let camera capture images
+    :return:
+    """
     global release
     release = True
+
     shm.buf[0] = STILL_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201
@@ -325,8 +356,13 @@ def capture_image():
 
 @app.route("/stop_camera")
 def stop_camera():
+    """
+    Release the camera and stop all camera activity
+    :return:
+    """
     global release
     release = True
+
     shm.buf[0] = TURN_OFF_PICTURES
     log.info(f"SM:{shm.buf[0]}")
     return "Success", 201

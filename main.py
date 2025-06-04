@@ -40,7 +40,6 @@ STILL_PICTURES = 1
 VIDEO_CLIPS = 2
 LIVE_FEED = 3
 
-
 def what_os():
     path = "/etc/os-release"
     with open(path) as stream:
@@ -120,6 +119,8 @@ def camera(save_to='./', use_overlay=False):
     :param video: bool: still or short video
     :return:
     """
+    global quit
+
     signal.signal(signal.SIGINT, handle_signal)
 
     # Starting with Bookworm the cammand name changed
@@ -127,6 +128,9 @@ def camera(save_to='./', use_overlay=False):
     version = os_release.get('VERSION')
     shm = None
     while not shm:
+        if quit:
+            break
+
         try:
             shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
             log.info(f"SM:{shm.buf[0]}")
@@ -137,6 +141,7 @@ def camera(save_to='./', use_overlay=False):
 
     while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
+        log.info(f"SM:{shm.buf[0]}")
         if shm.buf[0] in (STILL_PICTURES, VIDEO_CLIPS):
             if GPIO.input(SENSOR_PIN):
                 log.info(f"SM:{shm.buf[0]}")
@@ -150,11 +155,10 @@ def camera(save_to='./', use_overlay=False):
 
     shm.close()
 
-
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = '/usr/local/src/static/photos'
+    save_to = os.path.abspath(os.getcwd())+'/static/photos/'
     overlay = True
     video = False
 
