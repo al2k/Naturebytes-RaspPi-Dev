@@ -20,9 +20,6 @@ from multiprocessing import shared_memory
 # Local
 from log import log
 
-from picamera2 import Picamera2
-from picamera2.encoders import JpegEncoder
-from picamera2.outputs import FileOutput
 
 app = Flask("Image Gallery")
 app.config["IMAGE_EXTS"] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
@@ -384,4 +381,4 @@ if __name__ == "__main__":
     """
     pass
     # app.config[]
-    app.run(host="0.0.0.0", debug=False)
+    app.run(host="0.0.0.0", debug=True)
