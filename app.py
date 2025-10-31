@@ -15,8 +15,11 @@ from flask import (
     redirect,
 )
 
-from threading import Condition
-from multiprocessing import shared_memory
+from threading          import Condition
+from multiprocessing    import shared_memory
+from picamera2          import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs  import FileOutput
 
 # Local
 from log import log
