@@ -31,7 +31,7 @@ app.config["VIDEO_EXTS"] = [".webm", ".mp4", ".avi", ".mov"]
 
 """
 User a shared memory byte to control how the camera app takes pictures:
-    0 - turn of pictures
+    0 - turn off pictures
     1 - still pictures
     2 - video clips of 10 seconds
     3 - live stream
