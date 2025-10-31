@@ -14,6 +14,7 @@ from flask import (
     jsonify,
     redirect,
 )
+
 from threading import Condition
 from multiprocessing import shared_memory
 
@@ -286,7 +287,11 @@ def gen():
         # Clean up when streaming stops
         if camera_state != 0:
             release_camera()
+
+
 release = False
+
+
 def gen():
     """Video streaming generator function."""
     global release

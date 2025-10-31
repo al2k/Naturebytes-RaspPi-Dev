@@ -40,6 +40,7 @@ STILL_PICTURES = 1
 VIDEO_CLIPS = 2
 LIVE_FEED = 3
 
+
 def what_os():
     path = "/etc/os-release"
     with open(path) as stream:
@@ -126,14 +127,18 @@ def camera(save_to='./', use_overlay=False):
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
+    log.info(f"OS Version:{version}")
+
     shm = None
     while not shm:
         if quit:
+            log.info("Quit received")
             break
 
         try:
             shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
             log.info(f"SM:{shm.buf[0]}")
+
         except Exception as e:
             log.error("No shared memory")
 
@@ -148,6 +153,7 @@ def camera(save_to='./', use_overlay=False):
 
                 video = False if shm.buf[0] == 1 else True
                 cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
+                log.info(f"Command{cam_command}")
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(10)
         else:
