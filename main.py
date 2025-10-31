@@ -65,7 +65,8 @@ def take_photo(command, save_to, use_overlay, video):
     now = arrow.now().format('YYYY-MM-DD_HH:mm:ss')
 
     if video:
-        photo = now + '.h264'
+        #photo = now + '.h264'
+        photo = now + "mp4"
     else:
         photo = now +'.png'
 
