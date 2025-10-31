@@ -152,7 +152,7 @@ def camera(save_to='./', use_overlay=False):
         if shm.buf[0] in (STILL_PICTURES, VIDEO_CLIPS):
             if trigger:
                 video = False if shm.buf[0] == 1 else True
-                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s -e mjpeg'
+                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s --codec mjpeg'
 
                 log.info(f"Command{cam_command}")
                 take_photo(cam_command, save_to, use_overlay, video)
