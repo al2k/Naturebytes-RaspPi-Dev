@@ -10,7 +10,6 @@ const LIVESTREAMING = 0;
 const MOTION_CAPTURE = 1;
 const CAMERA_OFF = 2;
 
-
 // 1 - Photo
 // 2 - Video
 const PHOTO = 1;
@@ -25,26 +24,29 @@ var cameraActions;
 var motionCaptureState;
 
 document.addEventListener("DOMContentLoaded", function () {
-    videoFeedDiv = document.getElementById("livestream");
-    motionCaptureDiv = document.getElementById("motion-capture-placeholder");
-    turnedOffDiv = document.getElementById("camera-off-placeholder");
-    cameraActions = document.getElementById("camera-actions");
-    motionCaptureState = document.getElementById("motion-capture-state");
-    
-    updateCameraState(currentState, true);
+	videoFeedDiv = document.getElementById("livestream");
+	motionCaptureDiv = document.getElementById("motion-capture-placeholder");
+	turnedOffDiv = document.getElementById("camera-off-placeholder");
+	cameraActions = document.getElementById("camera-actions");
+	motionCaptureState = document.getElementById("motion-capture-state");
+
+	updateCameraState(currentState, true);
 });
 
-function updateCameraState(state, initial=false) {
-    switch (state) {
-        case LIVESTREAMING:
-            videoFeedDiv.style.display = "block";
-            motionCaptureDiv.style.display = "none";
-            turnedOffDiv.style.display = "none";
+function updateCameraState(state, initial = false) {
+	videoFeedDiv.src = "#";
+	switch (state) {
+		case LIVESTREAMING:
+			videoFeedDiv.style.display = "block";
+			videoFeedDiv.src = routeWatchLive;
+			motionCaptureDiv.style.display = "none";
+			turnedOffDiv.style.display = "none";
 
-            cameraActions.style.display = "block";
-            motionCaptureState.style.display = "none";
+			cameraActions.style.display = "block";
+			motionCaptureState.style.display = "none";
 
-            if (initial) break;
+			if (initial) break;
+			/*
             fetch(routeWatchLive)
                 .then(response => {
                     if (response.ok) {
@@ -54,68 +56,73 @@ function updateCameraState(state, initial=false) {
                     }
                 }).catch(error => {
                     console.log("Error: " + error);
-                });
-            break;
-        case MOTION_CAPTURE:
-            videoFeedDiv.style.display = "none";
-            motionCaptureDiv.style.display = "flex";
-            turnedOffDiv.style.display = "none";
+                });*/
+			break;
+		case MOTION_CAPTURE:
+			videoFeedDiv.style.display = "none";
+			motionCaptureDiv.style.display = "flex";
+			turnedOffDiv.style.display = "none";
 
-            cameraActions.style.display = "none";
-            motionCaptureState.style.display = "block";
+			cameraActions.style.display = "none";
+			motionCaptureState.style.display = "block";
 
-            if (initial && !document.getElementById("motion-capture-label").checkVisibility()) {
-                console.log("Setting motion state to: " + motionState);
-                if (motionState == 1) {
-                    document.getElementById("photo-motion").checked = true;
-                } else if (motionState == 2) {
-                    document.getElementById("video-motion").checked = true;
-                }
-            }
+			if (
+				initial &&
+				!document.getElementById("motion-capture-label").checkVisibility()
+			) {
+				console.log("Setting motion state to: " + motionState);
+				if (motionState == 1) {
+					document.getElementById("photo-motion").checked = true;
+				} else if (motionState == 2) {
+					document.getElementById("video-motion").checked = true;
+				}
+			}
 
-            if (initial) break;
-            
-            let route = routeCaptureImage;
-            if (motionState == 2) {
-                route = routeCaptureVideo;
-            }
+			if (initial) break;
 
-            fetch(route)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Camera is now capturing motion");
-                    } else {
-                        console.log("Error: " + response.statusText);
-                    }
-                }).catch(error => {
-                    console.log("Error: " + error);
-                });
-            break;
-        case CAMERA_OFF:
-            videoFeedDiv.style.display = "none";
-            motionCaptureDiv.style.display = "none";
-            turnedOffDiv.style.display = "flex";
+			let route = routeCaptureImage;
+			if (motionState == 2) {
+				route = routeCaptureVideo;
+			}
 
-            cameraActions.style.display = "none";
-            motionCaptureState.style.display = "none";
+			fetch(route)
+				.then((response) => {
+					if (response.ok) {
+						console.log("Camera is now capturing motion");
+					} else {
+						console.log("Error: " + response.statusText);
+					}
+				})
+				.catch((error) => {
+					console.log("Error: " + error);
+				});
+			break;
+		case CAMERA_OFF:
+			videoFeedDiv.style.display = "none";
+			motionCaptureDiv.style.display = "none";
+			turnedOffDiv.style.display = "flex";
 
-            if (initial) break;
-            fetch(routeStopCamera)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Camera is now off");
-                    } else {
-                        console.log("Error: " + response.statusText);
-                    }
-                }).catch(error => {
-                    console.log("Error: " + error);
-                });
-            break;
-    }
+			cameraActions.style.display = "none";
+			motionCaptureState.style.display = "none";
+
+			if (initial) break;
+			fetch(routeStopCamera)
+				.then((response) => {
+					if (response.ok) {
+						console.log("Camera is now off");
+					} else {
+						console.log("Error: " + response.statusText);
+					}
+				})
+				.catch((error) => {
+					console.log("Error: " + error);
+				});
+			break;
+	}
 }
 
 function updateMotionState(state) {
-    motionState = state;
+	motionState = state;
 
-    updateCameraState(MOTION_CAPTURE);
+	updateCameraState(MOTION_CAPTURE);
 }

@@ -4,23 +4,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | Wildlife Cam Kit - naturebytes</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='gallery.css') }}" />
-    <link rel="shortcut icon" href="/static/assets/favicon.webp" type="image/x-icon" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='gallery.css') }}"
+    />
+    <link
+      rel="shortcut icon"
+      href="/static/assets/favicon.webp"
+      type="image/x-icon"
+    />
   </head>
   <body>
     <header>
       <div class="logo">
         <a href="/">
-          <img src="{{ url_for('static', filename='/assets/logo.svg') }}" alt="" id="large-logo" />
-          <img src="{{ url_for('static', filename='/assets/favicon.webp') }}" alt="" id="small-logo" />
+          <img
+            src="{{ url_for('static', filename='/assets/logo.svg') }}"
+            alt=""
+            id="large-logo"
+          />
+          <img
+            src="{{ url_for('static', filename='/assets/favicon.webp') }}"
+            alt=""
+            id="small-logo"
+          />
         </a>
       </div>
 
       <div class="links">
         <a href="/" id="link-home">Camera</a>
         <a href="/gallery/0" class="active-link">Gallery</a>
-        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
+        <a
+          href="https://shop.naturebytes.org/products/wildlife-cam-kit"
+          class="shop-button"
+          target="_blank"
+          >Kit Store ↗</a
+        >
       </div>
     </header>
 
@@ -28,66 +55,165 @@
       <div class="gallery">
         <div class="title">Your Gallery</div>
         <div class="gallery-desc">
-          <span class="desc">All your pictures can be found here!</span>
-          <span class="stats"><i>Showing pictures {{ page * per_page + 1 }} - {{ [page * per_page + per_page, total_images]|min }} out of {{ total_images }} total</i></span>
-        </div>
-        {% if not images %}
-          <div id="no-image-yet">
-            <img src="{{ url_for('static', filename='assets/no-image.png') }}" alt="" height="100px">
-            <h4>No image found</h4>
-            <p>Capture your first image using the button below the video feed!</p>
-          </div>
-        {% else %}
-          <div class="img-gallery">
-            {% for image in images %}
-              <div class="item">
-                <div class="head">
-                  <img src={{image}} alt="" class="gallery-image" />
-                  <div class="zoom-in">
-                    <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
-                  </div>
-                </div>
-                <div class="img-details">
-                  <div class="icon">
-                    <div class="icon-item download" onclick="downloadImage('{{image}}')">
-                      <img src="/static/assets/download.svg" alt="">
-                    </div>
-                    <div class="icon-item" id="delete-icon" onclick="deleteImage('{{image}}')">
-                      <img src="/static/assets/delete.svg" alt="">
-                    </div>
-                  </div>
-                </div>
+          <div id="gallery-info">
+            <span class="desc">All your pictures can be found here!</span>
+            <div class="media-selector">
+              <div class="media-selector-child">
+                <input
+                  type="checkbox"
+                  name="photos"
+                  id="show-photos"
+                  value="photos"
+                  class="checkbox-button"
+                  checked
+                />
+                <label for="show-photos">Photos</label>
               </div>
-            {% endfor %}
+              <div class="media-selector-child">
+                <input
+                  type="checkbox"
+                  name="videos"
+                  id="show-videos"
+                  value="videos"
+                  class="checkbox-button"
+                  checked
+                />
+                <label for="show-videos">Videos</label>
+              </div>
+            </div>
           </div>
+          <span class="stats"
+            ><i
+              >Showing pictures {{ page * per_page + 1 }} - {{ [page * per_page
+              + per_page, total_images]|min }} out of {{ total_images }}
+              total</i
+            ></span
+          >
+        </div>
+
+        {% if images %}
+        <div class="bulk-actions">
+          <div id="select-all-wrapper">
+            <input type="checkbox" id="select-all" class="checkbox-button" />
+            <label for="select-all">Select All</label>
+          </div>
+          <button onclick="bulkDownload()" class="bulk-button">
+            Download Selected
+          </button>
+          <button onclick="bulkDelete()" class="bulk-button">
+            Delete Selected
+          </button>
+        </div>
+        {% endif %} {% if not images %}
+        <div id="no-image-yet">
+          <img
+            src="{{ url_for('static', filename='assets/no-image.png') }}"
+            alt=""
+            height="100px"
+          />
+          <h4>No image found</h4>
+          <p>Capture your first image using the button below the video feed!</p>
+        </div>
+        {% else %}
+        <div class="img-gallery" id="image-gallery">
+          {% for image in images %}
+          <div class="item" data-type="{{ image[0] }}">
+            <div class="head">
+              <input
+                type="checkbox"
+                class="image-select"
+                data-image="{{image[1]}}"
+              />
+              {% if image[0] == 'video' %}
+              <video class="gallery-video" autoplay muted loop>
+                <source src="{{image[1]}}" type="video/mp4" />
+              </video>
+              {% else %}
+              <img src="{{ image[1] }}" alt="" class="gallery-image" />
+              <div class="zoom-in">
+                <img src="/static/assets/zoom.svg" alt="" id="zoom-icon" />
+              </div>
+              {% endif %}
+            </div>
+            <div class="img-details">
+              <div class="icon">
+                <div
+                  class="icon-item download"
+                  onclick="downloadImage('{{image[1]}}')"
+                >
+                  <img src="/static/assets/download.svg" alt="" />
+                </div>
+                <div
+                  class="icon-item share"
+                  onclick="shareImage('{{image[1]}}')"
+                  title="Share"
+                >
+                  <img src="/static/assets/share.svg" alt="Share" />
+                </div>
+                <div
+                  class="icon-item"
+                  id="delete-icon"
+                  onclick="deleteImage('{{image[1]}}')"
+                >
+                  <img src="/static/assets/delete.svg" alt="" />
+                </div>
+                <script>
+                  function shareImage(url) {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: "Check out this photo!",
+                        url: url,
+                      });
+                    } else {
+                      alert(
+                        "Sharing is only supported on mobile devices and some browsers."
+                      );
+                    }
+                  }
+                </script>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
         {% endif %}
       </div>
 
       {% if images %}
-        <div class="pagination">
-          <select name="" id="" onchange="changePage(this)">
-            {% for i in range(0, total_pages) %}
-              {%if i == page %}
-                <option value="{{i}}" selected>{{i+1}}</option>
-              {% else %}
-                <option value="{{i}}">{{i+1}}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
-          <div id="pagination-pages">of {{total_pages}} pages</div>
-          <a href="/gallery/{{ page - 1 }}" class="prev-page {% if page == 0 %} disabled {% endif %}">&lt;</a>
-          <a href="/gallery/{{ page + 1 }}" class="next-page {% if page + 1 == total_pages %} disabled {% endif %}">&gt;</a>
-        </div>
+      <div class="pagination">
+        <select name="" id="" onchange="changePage(this)">
+          {% for i in range(0, total_pages) %} {%if i == page %}
+          <option value="{{i}}" selected>{{i+1}}</option>
+          {% else %}
+          <option value="{{i}}">{{i+1}}</option>
+          {% endif %} {% endfor %}
+        </select>
+        <div id="pagination-pages">of {{total_pages}} pages</div>
+        <a
+          href="/gallery/{{ page - 1 }}"
+          class="prev-page {% if page == 0 %} disabled {% endif %}"
+          >&lt;</a
+        >
+        <a
+          href="/gallery/{{ page + 1 }}"
+          class="next-page {% if page + 1 == total_pages %} disabled {% endif %}"
+          >&gt;</a
+        >
+      </div>
       {% endif %}
     </div>
 
     <!-- Modal for gallery image viewing -->
     <div id="imageModal" class="modal">
       <div id="modal-content-wrapper">
-          <span class="close">&times;</span>
-          <span class="nav-arrow left-arrow" onclick="navigate(-1)">&#10094;</span>
-          <span class="nav-arrow right-arrow" onclick="navigate(1)">&#10095;</span>
-          <img class="modal-content" id="modalImage">
+        <span class="close">&times;</span>
+        <span class="nav-arrow left-arrow" onclick="navigate(-1)"
+          >&#10094;</span
+        >
+        <span class="nav-arrow right-arrow" onclick="navigate(1)"
+          >&#10095;</span
+        >
+        <img class="modal-content" id="modalImage" />
       </div>
     </div>
 

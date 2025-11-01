@@ -4,6 +4,7 @@ sudo apt upgrade -y
 sudo apt -y install python3-rpi.gpio python3-flask git imagemagick
 sudo apt -y install python3-opencv python3-arrow python3-picamera2
 sudo apt -y install gunicorn3
+sudo apt -y install ffmpeg
 
 # Install BTBerryWifi
 curl  -L https://raw.githubusercontent.com/nksan/Rpi-SetWiFi-viaBluetooth/main/btwifisetInstall.sh | bash

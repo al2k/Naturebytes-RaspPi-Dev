@@ -28,6 +28,18 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BATTERY_PIN, GPIO.IN)
 
+"""
+User a shared memory byte to control how the camera app takes pictures:
+    0 - turn of pictures
+    1 - still pictures
+    2 - video clips of 10 seconds
+    3 - live stream
+"""
+TURN_OFF_PICTURES = 0
+STILL_PICTURES = 1
+VIDEO_CLIPS = 2
+LIVE_FEED = 3
+
 
 def what_os():
     path = "/etc/os-release"
@@ -82,6 +94,10 @@ def take_photo(command, save_to, use_overlay, video):
             logging.info('Added the overlay text successfully')
             run(overlay.split())
             logging.info('Logo added successfully')
+        elif video:
+            cmd = f"ffmpeg -framerate 30 -f h264 -i {photo} -c copy {now+'.mp4'}"
+            run(cmd.split())
+            photo = now+'.mp4'
 
         run(["mv",f"./{photo}",f"{save_to}"])
         log.info(f"Saved:{save_to}/{photo}")
@@ -100,7 +116,7 @@ def handle_signal(signum, frame):
     quit = True
 
 
-def camera(save_to='./', use_overlay=False, video=False):
+def camera(save_to='./', use_overlay=False):
     """
     Main camera process
     :param save_to: where to save photos
@@ -108,16 +124,25 @@ def camera(save_to='./', use_overlay=False, video=False):
     :param video: bool: still or short video
     :return:
     """
+    global quit
+
     signal.signal(signal.SIGINT, handle_signal)
 
     # Starting with Bookworm the cammand name changed
     os_release = what_os()
     version = os_release.get('VERSION')
+    log.info(f"OS Version:{version}")
+
     shm = None
     while not shm:
+        if quit:
+            log.info("Quit received")
+            break
+
         try:
             shm = shared_memory.SharedMemory('camera_control',create=False, size=1)
             log.info(f"SM:{shm.buf[0]}")
+
         except Exception as e:
             log.error("No shared memory")
 
@@ -125,27 +150,25 @@ def camera(save_to='./', use_overlay=False, video=False):
 
     while not quit:
         # Map the state of the camera to our input pins (jumper cables connected to your PIR)
-        if GPIO.input(SENSOR_PIN):
-            log.info(f"SM:{shm.buf[0]}")
-
-            if shm.buf[0]:
-                if '12' in version:
-                    cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
-                else:
-                    cam_command = 'libcamera-still -e png' if not video else 'libcamera-vid -t 10s'
-
+        trigger = GPIO.input(SENSOR_PIN)
+        log.info(f"SM:{shm.buf[0]} motion:{trigger}")
+        if shm.buf[0] in (STILL_PICTURES, VIDEO_CLIPS):
+            if trigger:
                 video = False if shm.buf[0] == 1 else True
+                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
+
+                log.info(f"Command{cam_command}")
                 take_photo(cam_command, save_to, use_overlay, video)
             time.sleep(10)
+        else:
+            time.sleep(1)
+
     shm.close()
-
-
-
 
 if __name__ == "__main__":
     import argparse
     args = argparse.ArgumentParser( prog='Capture camera images')
-    save_to = '/usr/local/src/static/photos'
+    save_to = os.path.abspath(os.getcwd())+'/static/photos/'
     overlay = True
     video = False
 
@@ -154,4 +177,4 @@ if __name__ == "__main__":
     args.add_argument('-v', '--video',   action='store_true', default=False)
 
     values = args.parse_args()
-    camera(values.save_to, values.overlay, values.video)
+    camera(values.save_to, values.overlay)

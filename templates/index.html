@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | Wildlife Cam Kit - naturebytes</title>
 
-    <!-- remixicon.com -->
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/favicon.webp') }}" type="image/x-icon" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='assets/favicon.webp') }}"
+      type="image/x-icon"
+    />
   </head>
   <body>
     <header>
@@ -22,7 +31,12 @@
       <div class="links">
         <a href="/" id="link-home" class="active-link">Camera</a>
         <a href="/gallery/0">Gallery</a>
-        <a href="https://shop.naturebytes.org/products/wildlife-cam-kit" class="shop-button" target="_blank">naturebytes shop ↗</a>
+        <a
+          href="https://shop.naturebytes.org/products/wildlife-cam-kit"
+          class="shop-button"
+          target="_blank"
+          >Kit Store ↗</a
+        >
       </div>
     </header>
 
@@ -31,161 +45,274 @@
         <div class="livestream">
           <div class="main-box">
             <div id="motion-capture-placeholder">
-              <img src="/static/assets/motion_detection.png" alt="" width="300px">
-              <p id="motion-capture-prepared-text">Camera is prepared to capture once it detects motion!</p>
+              <img
+                src="/static/assets/motion_detection.png"
+                alt=""
+                width="300px"
+              />
+              <p id="motion-capture-prepared-text">
+                Camera is prepared to capture once it detects motion!
+              </p>
               <p class="motion-capture-smaller-text">
-                Captured content will appear in your gallery.
-                <br />
-                You can change the motion capture settings below.
-                <br />
-                To see the live feed, change camera mode below.
+                Captured Images will appear in your Gallery
               </p>
             </div>
             <div id="camera-off-placeholder">
-              <img src="/static/assets/sleep.png" alt="" width="200px">
-              <p id="motion-capture-prepared-text">The Camera is currently off and saving power.</p>
-              <p class="motion-capture-smaller-text">
-                To see the live feed, change camera mode below.
+              <img src="/static/assets/sleep.png" alt="" width="200px" />
+              <p id="motion-capture-prepared-text">
+                Camera off - saving battery
               </p>
             </div>
-            <img src="{{ url_for('video_feed') }}" alt="" id="livestream" />
+            <img src="#" alt="" id="livestream" />
             <div class="maximize-screen icon" onclick="toggleFullscreen()">
-              <img src="/static/assets/maximize.svg" alt="" width="30px" class="live-icon">
+              <img
+                src="/static/assets/maximize.svg"
+                alt=""
+                width="30px"
+                class="live-icon"
+              />
             </div>
           </div>
           <div id="camera-actions">
             {% if not images %}
-              <div id="tooltip">
-                <span>Try taking your first photo!</span>
-              </div>
+            <div id="tooltip">
+              <span>Try taking your first photo!</span>
+            </div>
             {% endif %}
             <div id="camera-type">
               <div id="swipe-container"></div>
-              <span id="photo" class="mode active" onclick="setActive(0);">Photo</span>
+              <span id="photo" class="mode active" onclick="setActive(0);"
+                >Photo</span
+              >
               <span id="video" class="mode" onclick="setActive(1);">Video</span>
             </div>
-            <div id="shutter" class="photo-taking" onclick="takePhoto()">
-            </div>
+            <div id="shutter" class="photo-taking" onclick="takePhoto()"></div>
           </div>
 
           <div id="camera-controls">
             <div id="camera-state">
-              <h3>Camera State</h3>
+              <h3>Camera Mode</h3>
               <div class="radio-wrapper">
                 <label for="live-streaming" class="radio-item">
-                  <img src="/static/assets/live.svg" alt="" width="36px">
-                  <span class="radio-name">Live Streaming</span>
-                  <input type="radio" class="camera-state-radio" id="live-streaming" name="camera-type" value="live-streaming" onclick="updateCameraState(LIVESTREAMING)" {% if camera_state == 0 %} checked {% endif %}>
+                  <img src="/static/assets/live.svg" alt="" width="36px" />
+                  <span class="radio-name">Live Stream</span>
+                  <input type="radio" class="camera-state-radio"
+                  id="live-streaming" name="camera-type" value="live-streaming"
+                  onclick="updateCameraState(LIVESTREAMING)" {% if camera_state
+                  == 0 %} checked {% endif %}>
                 </label>
-                
-                <label for="motion-capture" class="radio-item" id="motion-capture-label">
-                  <img src="/static/assets/movement.svg" alt="" width="36px">
+
+                <label
+                  for="motion-capture"
+                  class="radio-item"
+                  id="motion-capture-label"
+                >
+                  <img src="/static/assets/movement.svg" alt="" width="36px" />
                   <span class="radio-name">Motion Capture</span>
-                  <input type="radio" class="camera-state-radio" id="motion-capture" name="camera-type" value="motion-capture" onclick="updateCameraState(MOTION_CAPTURE)" {% if camera_state == 1 %} checked {% endif %}>                  
+                  <input type="radio" class="camera-state-radio"
+                  id="motion-capture" name="camera-type" value="motion-capture"
+                  onclick="updateCameraState(MOTION_CAPTURE)" {% if camera_state
+                  == 1 %} checked {% endif %}>
 
                   <div id="motion-capture-state">
                     <label for="motion-photo" class="label-motion-capture">
-                      <input
-                        type="radio"
-                        class="input-radio-motion-capture-state"
-                        name="motion-state"
-                        id="motion-photo"
-                        onclick="updateMotionState(1)"
-                        {% if motion_state == 1 %} checked {% endif %}
-                      >
+                      <input type="radio"
+                      class="input-radio-motion-capture-state"
+                      name="motion-state" id="motion-photo"
+                      onclick="updateMotionState(1)" {% if motion_state == 1 %}
+                      checked {% endif %} >
                       <span class="radio-motion-capture"></span>
                       <p>Stills</p>
                     </label>
-                    
+
                     <label for="motion-video" class="label-motion-capture">
                       <span class="radio-motion-capture"></span>
-                      <input
-                        type="radio"
-                        class="input-radio-motion-capture-state"
-                        name="motion-state"
-                        id="motion-video"
-                        onclick="updateMotionState(2)"
-                        {% if motion_state == 2 %} checked {% endif %}
-                      >
+                      <input type="radio"
+                      class="input-radio-motion-capture-state"
+                      name="motion-state" id="motion-video"
+                      onclick="updateMotionState(2)" {% if motion_state == 2 %}
+                      checked {% endif %} >
                       <p>Video</p>
                     </label>
                   </div>
                 </label>
 
-                <label for="photo-motion" class="radio-item mobile-motion-capture" id="photo-motion-label">
-                  <img src="/static/assets/movement.svg" alt="" width="36px">
-                  <span class="radio-name">Motion Photo Capture</span>
-                  <input type="radio" class="camera-state-radio" id="photo-motion" name="camera-type" value="photo-motion" onclick="updateMotionState(PHOTO)">
+                <label
+                  for="photo-motion"
+                  class="radio-item mobile-motion-capture"
+                  id="photo-motion-label"
+                >
+                  <img src="/static/assets/movement.svg" alt="" width="36px" />
+                  <span class="radio-name">Motion Detection - Photo</span>
+                  <input
+                    type="radio"
+                    class="camera-state-radio"
+                    id="photo-motion"
+                    name="camera-type"
+                    value="photo-motion"
+                    onclick="updateMotionState(PHOTO)"
+                  />
                 </label>
 
-                <label for="video-motion" class="radio-item mobile-motion-capture" id="video-motion-label">
-                  <img src="/static/assets/video-motion.svg" alt="" width="36px">
-                  <span class="radio-name">Motion Video Capture</span>
-                  <input type="radio" class="camera-state-radio" id="video-motion" name="camera-type" value="video-motion" onclick="updateMotionState(VIDEO)">
+                <label
+                  for="video-motion"
+                  class="radio-item mobile-motion-capture"
+                  id="video-motion-label"
+                >
+                  <img
+                    src="/static/assets/video-motion.svg"
+                    alt=""
+                    width="36px"
+                  />
+                  <span class="radio-name">Motion Detection - Video</span>
+                  <input
+                    type="radio"
+                    class="camera-state-radio"
+                    id="video-motion"
+                    name="camera-type"
+                    value="video-motion"
+                    onclick="updateMotionState(VIDEO)"
+                  />
                 </label>
-                
+
                 <label for="part-time" class="radio-item">
-                  <img src="/static/assets/turn-off.svg" alt="" width="36px">
-                  <span class="radio-name">Camera Off</span>
-                  <input type="radio" class="camera-state-radio" id="part-time" name="camera-type" value="part-time" onclick="updateCameraState(CAMERA_OFF)" {% if camera_state == 2 %} checked {% endif %}>
+                  <img src="/static/assets/turn-off.svg" alt="" width="36px" />
+                  <span class="radio-name">Sleep Camera</span>
+                  <input type="radio" class="camera-state-radio" id="part-time"
+                  name="camera-type" value="part-time"
+                  onclick="updateCameraState(CAMERA_OFF)" {% if camera_state ==
+                  2 %} checked {% endif %}>
                 </label>
+              </div>
             </div>
           </div>
         </div>
-        
-        </div>
-      <!-- TODO: rotate and move to setting
+        <!-- TODO: rotate and move to setting
         Try 90 degrees 
       -->
-      
+
         <div class="aside">
           <div class="testing">
             <div class="head-title">Testing & Settings</div>
             <div class="toggle-group">
               <div class="toggle-header">
-                  <div class="name">Test Camera Unit</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
+                <div class="name">Test Camera Unit</div>
+                <img class="arrow" src="static/assets/arrow.svg" alt="" />
               </div>
-              
-              <div class="toggle-content">
+
+              <div class="toggle-content settings">
+                <button id="test-camera-btn" class="btn" onclick="
+                    alert('UNFINISHED!!! What api endpoint do I call? TODO: @Peter');
+                  ">
+                  Test Camera
+                </button>
+                </script>
               </div>
             </div>
             <div class="toggle-group">
               <div class="toggle-header" id="pir-sensor-toggle">
-                  <div class="name">Test PIR Sensor</div>
+                <div class="name">Test PIR Sensor</div>
               </div>
             </div>
             <div class="toggle-group">
               <div class="toggle-header">
-                  <div class="name">Camera Settings</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
+                <div class="name">Camera Settings</div>
+                <img class="arrow" src="static/assets/arrow.svg" alt="" />
               </div>
-              
-              <div class="toggle-content">
-                <h3>Rotate camera</h3>
-                <div id="camera-rotation">
-                  <img src="/static/assets/left90.png" alt="" width="34px">
-                  <img src="/static/assets/left180.png" alt="" width="34px">
-                  <img src="/static/assets/right90.png" alt="" width="34px">
-                </div>
 
-                <h3>Restart Camera</h3>
-                <div id="restart-camera">
-                  <button>Restart</button>
+              <div class="toggle-content">
+                <h3>Rotate Camera</h3>
+                <div id="camera-rotation">
+                  <img
+                    src="/static/assets/left90.png"
+                    alt="Rotate -90°"
+                    width="34px"
+                    id="rotate-left90"
+                    style="cursor: pointer"
+                  />
+                  <img
+                    src="/static/assets/left180.png"
+                    alt="Rotate 180°"
+                    width="34px"
+                    id="rotate-180"
+                    style="cursor: pointer"
+                  />
+                  <img
+                    src="/static/assets/right90.png"
+                    alt="Rotate 90°"
+                    width="34px"
+                    id="rotate-right90"
+                    style="cursor: pointer"
+                  />
                 </div>
+                <script>
+                  // Camera rotation functionality
+                  document.addEventListener("DOMContentLoaded", function () {
+                    var livestream = document.getElementById("livestream");
+                    var rotateLeft = document.getElementById("rotate-left90");
+                    var rotate180 = document.getElementById("rotate-180");
+                    var rotateRight = document.getElementById("rotate-right90");
+                    let currentRotation = 0;
+                    function setRotation(deg) {
+                      currentRotation = deg;
+                      if (livestream) {
+                        livestream.style.transform = `rotate(${deg}deg)`;
+                      }
+                    }
+                    if (rotateLeft)
+                      rotateLeft.addEventListener("click", function () {
+                        setRotation(-90);
+                      });
+                    if (rotate180)
+                      rotate180.addEventListener("click", function () {
+                        setRotation(180);
+                      });
+                    if (rotateRight)
+                      rotateRight.addEventListener("click", function () {
+                        setRotation(90);
+                      });
+                  });
+                </script>
+
+                <h3>Restart System</h3>
+                <div id="restart-camera" class="settings">
+                  <button id="restart-system-btn">Restart</button>
+                </div>
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                    var restartBtn =
+                      document.getElementById("restart-system-btn");
+                    if (restartBtn) {
+                      restartBtn.addEventListener("click", function (e) {
+                        if (
+                          !confirm(
+                            "Are you sure you want to shutdown and restart the system?"
+                          )
+                        ) {
+                          e.preventDefault();
+                          return false;
+                        }
+
+                        alert(
+                          "UNFINISHED!!! What api endpoint do I call? TODO: @Peter"
+                        );
+                      });
+                    }
+                  });
+                </script>
               </div>
             </div>
           </div>
-        
+
           <div class="help">
             <div class="head-title">Help & Assembly Guides</div>
 
             <div class="toggle-group">
               <div class="toggle-header">
-                  <div class="name">Assembly Guides</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
+                <div class="name">Assembly Guides</div>
+                <img class="arrow" src="static/assets/arrow.svg" alt="" />
               </div>
-              
+
               <div class="toggle-content">
                 <div class="download-assembly">
                   <img src="static/assets/pdf.svg" alt="" />
@@ -195,59 +322,99 @@
                           on the other hand it might be better to have it locally then to rely on the user being able to connect to the internet
                     Ans: have it on the sd card probably
                   -->
-                  <a href="https://example.com" target="_blank">Download Assembly Guide</a>
+                  <a href="https://example.com" target="_blank"
+                    >Download Assembly Guide</a
+                  >
                 </div>
               </div>
             </div>
             <div class="toggle-group">
               <div class="toggle-header">
-                  <div class="name">Troubleshooting & Tips</div>
-                  <img class="arrow" src="static/assets/arrow.svg" alt="" />
+                <div class="name">Troubleshooting</div>
+                <img class="arrow" src="static/assets/arrow.svg" alt="" />
               </div>
-              
               <div class="toggle-content">
-                <b>Is something broken? Here's how to fix it..</b>
+                <b>Something not working?</b>
+                <p>
+                  Check out the
+                  <a
+                    href="https://naturebytes.org/faq/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >troubleshooting page</a
+                  >
+                  to find the answer.
+                </p>
+              </div>
+            </div>
+            <div class="toggle-group">
+              <div class="toggle-header">
+                <div class="name">Tips</div>
+                <img class="arrow" src="static/assets/arrow.svg" alt="" />
+              </div>
+              <div class="toggle-content">
+                <b>For tips for great wildlife images, check out our page </b>
+                <a href="" target="_blank" rel="noopener noreferrer">here</a>.
               </div>
             </div>
           </div>
         </div>
-        
+
         <div class="gallery">
           <div class="title">Recent Pictures</div>
-          <div class="desc">Your recently captured images will show up here!</div>
+          <div class="desc">
+            Your recently captured images will show up here!
+          </div>
           {% if not images %}
-            <div id="no-image-yet">
-              <img src="{{ url_for('static', filename='assets/no-image.png') }}" alt="" height="100px">
-              <h4>No image found</h4>
-              <p>Capture your first image using the shutter button!</p>
-            </div>
+          <div id="no-image-yet">
+            <img
+              src="{{ url_for('static', filename='assets/no-image.png') }}"
+              alt=""
+              height="100px"
+            />
+            <h4>No image found</h4>
+            <p>Capture your first image using the shutter button!</p>
+          </div>
           {% else %}
-            <div class="img-gallery">
-              {% for image in images %}
-                <div class="item">
-                  <div class="head">
-                    <img src={{image}} alt="" class="gallery-image" />
-                    <div class="zoom-in">
-                      <img src="/static/assets/zoom.svg" alt="" id="zoom-icon">
-                    </div>
+          <div class="img-gallery">
+            {% for image in images %}
+            <div class="item">
+              <div class="head">
+                {% if image[0] == "image" %}
+                <img src="{{image[1]}}" alt="" class="gallery-image" />
+                <div class="zoom-in">
+                  <img src="/static/assets/zoom.svg" alt="" id="zoom-icon" />
+                </div>
+                {% else %}
+                <video class="gallery-video" autoplay muted loop>
+                  <source src="{{image[1]}}" type="video/mp4" />
+                </video>
+                {% endif %}
+              </div>
+              <div class="img-details">
+                <div class="icon">
+                  <div
+                    class="icon-item download"
+                    onclick="downloadImage('{{image[1]}}')"
+                  >
+                    <img src="/static/assets/download.svg" alt="" />
                   </div>
-                  <div class="img-details">
-                    <div class="icon">
-                      <div class="icon-item download" onclick="downloadImage('{{image}}')">
-                        <img src="/static/assets/download.svg" alt="">
-                      </div>
-                      <div class="icon-item" id="delete-icon" onclick="deleteImage('{{image}}')">
-                        <img src="/static/assets/delete.svg" alt="">
-                      </div>
-                    </div>
+                  <div
+                    class="icon-item"
+                    id="delete-icon"
+                    onclick="deleteImage('{{image[1]}}')"
+                  >
+                    <img src="/static/assets/delete.svg" alt="" />
                   </div>
                 </div>
-              {% endfor %}
+              </div>
             </div>
-            <a href="gallery/0" id="view-gallery-wrapper">
-              <img src="/static/assets/image.svg" alt="" width="20px">
-              <p id="view-gallery">View your whole gallery</p>
-            </a>
+            {% endfor %}
+          </div>
+          <a href="gallery/0" id="view-gallery-wrapper">
+            <img src="/static/assets/image.svg" alt="" width="20px" />
+            <p id="view-gallery">View your whole gallery</p>
+          </a>
           {% endif %}
         </div>
       </div>
@@ -256,23 +423,31 @@
     <!-- Modal for gallery image viewing -->
     <div id="imageModal" class="modal">
       <div id="modal-content-wrapper">
-          <span class="close">&times;</span>
-          <span class="nav-arrow left-arrow" onclick="navigate(-1)">&#10094;</span>
-          <span class="nav-arrow right-arrow" onclick="navigate(1)">&#10095;</span>
-          <img class="modal-content" id="modalImage">
+        <span class="close">&times;</span>
+        <span class="nav-arrow left-arrow" onclick="navigate(-1)"
+          >&#10094;</span
+        >
+        <span class="nav-arrow right-arrow" onclick="navigate(1)"
+          >&#10095;</span
+        >
+        <img class="modal-content" id="modalImage" />
       </div>
     </div>
 
     <!-- Modal for PIR testing -->
     <div class="pir-modal" id="pir-modal">
       <div class="pir-modal-content">
-          <span class="close" id="close-pir-modal">&times;</span>
-          <h3>PIR Sensor Test</h3>
-          <p id="pir-motion-waiting">Waiting for motion detection, pin input is LOW...</p>
-          <p id="pir-motion-active">Motion detected! Pin output is HIGH.</p>
+        <span class="close" id="close-pir-modal">&times;</span>
+        <h3>PIR Sensor Test</h3>
+        <p id="pir-motion-waiting">
+          Waiting for motion detection, pin input is LOW...
+        </p>
+        <p id="pir-motion-active">Motion detected! Pin output is HIGH.</p>
 
-          <div id="pir-motion-displayer">
-          </div>
+        <div id="pir-motion-displayer"></div>
+        <div class="pir-test-note" style="margin-top:18px; color:#b85c00; font-size:15px;">
+          UNFINISHED!!! What api endpoint do I call? TODO: @Peter
+        </div>
       </div>
     </div>
 
@@ -284,7 +459,7 @@
       /* variable for camera state */
       var currentState = parseInt("{{ camera_state }}");
       var motionState = parseInt("{{ motion_state }}");
-      var routeWatchLive = "watch_live";
+      var routeWatchLive = "video_feed";
       var routeCaptureVideo = "capture_video";
       var routeCaptureImage = "capture_image";
       var routeStopCamera = "stop_camera";
@@ -293,6 +468,7 @@
     <script src="/static/scripts/camera.js"></script>
     <script src="/static/scripts/toggles.js"></script>
     <script src="/static/scripts/state.js"></script>
+    <script src="/static/scripts/videoRecord.js"></script>
 
     <script>
       const pirModal = document.getElementById("pir-modal");
@@ -300,17 +476,17 @@
       const closePIRModal = document.getElementById("close-pir-modal");
 
       openPIRModal.addEventListener("click", () => {
-          pirModal.style.display = "flex";
+        pirModal.style.display = "flex";
       });
 
       closePIRModal.addEventListener("click", () => {
-          pirModal.style.display = "none";
+        pirModal.style.display = "none";
       });
 
       window.addEventListener("click", (e) => {
-          if (e.target === pirModal) {
-              pirModal.style.display = "none";
-          }
+        if (e.target === pirModal) {
+          pirModal.style.display = "none";
+        }
       });
 
       setInterval(() => {
