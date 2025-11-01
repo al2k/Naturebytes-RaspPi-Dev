@@ -65,7 +65,7 @@ def take_photo(command, save_to, use_overlay, video):
     now = arrow.now().format('YYYY-MM-DD_HH:mm:ss')
 
     if video:
-        photo = now + '.mp4'
+        photo = now + '.h264'
     else:
         photo = now +'.png'
 
@@ -94,6 +94,10 @@ def take_photo(command, save_to, use_overlay, video):
             logging.info('Added the overlay text successfully')
             run(overlay.split())
             logging.info('Logo added successfully')
+        elif video:
+            cmd = f"ffmpeg -framerate 30 -f h264 -i {photo} -c copy {now+'.mp4'}"
+            run(cmd.split())
+            photo = now+'.mp4'
 
         run(["mv",f"./{photo}",f"{save_to}"])
         log.info(f"Saved:{save_to}/{photo}")
@@ -151,7 +155,7 @@ def camera(save_to='./', use_overlay=False):
         if shm.buf[0] in (STILL_PICTURES, VIDEO_CLIPS):
             if trigger:
                 video = False if shm.buf[0] == 1 else True
-                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10000 --width 1280 --height 720 --framerate 30 -o - | ffmpeg -i - -c copy '
+                cam_command = 'rpicam-still -e png' if not video else 'rpicam-vid -t 10s'
 
                 log.info(f"Command{cam_command}")
                 take_photo(cam_command, save_to, use_overlay, video)
