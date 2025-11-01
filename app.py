@@ -27,7 +27,7 @@ from log import log
 
 app = Flask("Image Gallery")
 app.config["IMAGE_EXTS"] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
-app.config["VIDEO_EXTS"] = [".webm", ".mp4", ".avi", ".mov", "h264"]
+app.config["VIDEO_EXTS"] = [".webm", ".mp4", ".avi", ".mov", "h264","mjpeg"]
 
 """
 User a shared memory byte to control how the camera app takes pictures:
